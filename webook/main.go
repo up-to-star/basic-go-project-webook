@@ -1,14 +1,27 @@
 package main
 
 import (
+	"basic-project/webook/internal/repository"
+	"basic-project/webook/internal/repository/dao"
+	"basic-project/webook/internal/service"
 	"basic-project/webook/internal/web"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
 
 func main() {
+	db := initDB()
+	u := initUser(db)
+	server := initWebServer()
+	u.RegisterRoutes(server)
+	_ = server.Run(":8080")
+}
+
+func initWebServer() *gin.Engine {
 	server := gin.Default()
 	server.Use(cors.New(cors.Config{
 		//AllowOrigins: []string{"http://localhost:3000"},
@@ -25,7 +38,25 @@ func main() {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
-	u := web.NewUserHandle()
-	u.RegisterRoutes(server)
-	_ = server.Run(":8080")
+	return server
+}
+
+func initDB() *gorm.DB {
+	db, err := gorm.Open(mysql.Open("root:root@tcp(localhost:13316)/webook?charset=utf8mb4&parseTime=True&loc=Local"))
+	if err != nil {
+		panic(err)
+	}
+	err = dao.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+func initUser(db *gorm.DB) *web.UserHandle {
+	ud := dao.NewUserDAO(db)
+	repo := repository.NewUserRepository(ud)
+	svc := service.NewUserService(repo)
+	u := web.NewUserHandle(svc)
+	return u
 }

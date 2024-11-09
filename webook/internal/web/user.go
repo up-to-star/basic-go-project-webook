@@ -1,6 +1,8 @@
 package web
 
 import (
+	"basic-project/webook/internal/domain"
+	"basic-project/webook/internal/service"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,12 +15,14 @@ const (
 
 // UserHandle 定义和 user 用户有关的路由
 type UserHandle struct {
+	svc         *service.UserService
 	emailExp    *regexp.Regexp
 	passwordExp *regexp.Regexp
 }
 
-func NewUserHandle() *UserHandle {
+func NewUserHandle(svc *service.UserService) *UserHandle {
 	return &UserHandle{
+		svc:         svc,
 		emailExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
 		passwordExp: regexp.MustCompile(passwordRegexPattern, regexp.None),
 	}
@@ -66,6 +70,14 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 	}
 	if req.Password != req.ConfirmPassword {
 		ctx.String(http.StatusOK, "两次密码不一致")
+		return
+	}
+	err = u.svc.Signup(ctx, domain.User{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		ctx.String(http.StatusOK, "系统异常")
 		return
 	}
 	ctx.String(http.StatusOK, "注册成功")
