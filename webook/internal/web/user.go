@@ -3,6 +3,7 @@ package web
 import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
+	"errors"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -50,7 +51,7 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 	// 校验email
 	ok, err := u.emailExp.MatchString(req.Email)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.String(http.StatusOK, "系统异常")
 		return
 	}
 	if !ok {
@@ -61,7 +62,7 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 	// 校验密码
 	ok, err = u.passwordExp.MatchString(req.Password)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.String(http.StatusOK, "系统异常")
 		return
 	}
 	if !ok {
@@ -76,6 +77,10 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 		Email:    req.Email,
 		Password: req.Password,
 	})
+	if errors.Is(err, service.ErrUserDuplicateEmail) {
+		ctx.String(http.StatusOK, "邮箱冲突")
+		return
+	}
 	if err != nil {
 		ctx.String(http.StatusOK, "系统异常")
 		return
@@ -84,6 +89,27 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 }
 
 func (u *UserHandle) Login(ctx *gin.Context) {
+	type LoginReq struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req LoginReq
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	err := u.svc.Login(ctx, domain.User{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if errors.Is(err, service.ErrInvalidUserOrPassword) {
+		ctx.String(http.StatusOK, "邮箱或密码错误")
+		return
+	}
+	if err != nil {
+		ctx.String(http.StatusOK, "系统异常")
+		return
+	}
+	ctx.String(http.StatusOK, "登录成功")
 
 }
 
