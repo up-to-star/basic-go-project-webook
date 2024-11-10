@@ -113,15 +113,33 @@ func (u *UserHandle) Login(ctx *gin.Context) {
 	// 登录成功
 	sess := sessions.Default(ctx)
 	sess.Set("userId", user.Id)
+	sess.Options(sessions.Options{
+		MaxAge: 30 * 60,
+	})
 	_ = sess.Save()
 	ctx.String(http.StatusOK, "登录成功")
-
 }
 
 func (u *UserHandle) Edit(ctx *gin.Context) {
+	type EditReq struct {
+		Nickname string `json:"nickname"`
+		Birthday string `json:"birthday"`
+		AboutMe  string `json:"aboutMe"`
+	}
+	var req EditReq
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
 
 }
 
 func (u *UserHandle) Profile(ctx *gin.Context) {
 	ctx.String(http.StatusOK, "profile")
+}
+
+func (u *UserHandle) Logout(ctx *gin.Context) {
+	sess := sessions.Default(ctx)
+	sess.Options(sessions.Options{MaxAge: -1})
+	_ = sess.Save()
+	ctx.String(http.StatusOK, "退出登录成功")
 }

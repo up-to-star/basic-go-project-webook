@@ -8,7 +8,7 @@ import (
 	"basic-project/webook/internal/web/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -41,7 +41,12 @@ func initWebServer() *gin.Engine {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
-	store := cookie.NewStore([]byte("secret"))
+	//store := memstore.NewStore([]byte("aIAcX#$8TT}.J+fE}Oa%l6{|-h{oo4)k"), []byte("ll1K9(4lACcUKN5'G};Ug5l*u>.,][_c"))
+	store, err := redis.NewStore(16, "tcp", "localhost:6380", "",
+		[]byte("aIAcX#$8TT}.J+fE}Oa%l6{|-h{oo4)k"), []byte("ll1K9(4lACcUKN5'G};Ug5l*u>.,][_c"))
+	if err != nil {
+		panic(err)
+	}
 	server.Use(sessions.Sessions("mysession", store))
 	server.Use(middleware.NewLoginMiddleWareBuilder().
 		IgnorePath("/users/login").

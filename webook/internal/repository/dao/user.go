@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
@@ -46,9 +47,13 @@ func (dao *UserDAO) FindByEmail(ctx context.Context, email string) (User, error)
 
 // User 直接对应数据库表
 type User struct {
-	Id       int64  `gorm:"primaryKey,autoIncrement"`
-	Email    string `gorm:"type:varchar(255);unique"`
-	Password string `gorm:"type:varchar(255)"`
+	Id       int64          `gorm:"primaryKey,autoIncrement"`
+	Email    string         `gorm:"type:varchar(255);unique"`
+	Password string         `gorm:"type:varchar(255)"`
+	Phone    sql.NullString `gorm:"type:char(11);unique"`
+	Nickname string         `gorm:"type:varchar(128)"`
+	AboutMe  string         `gorm:"type:varchar(4096)"`
+	Birthday int64
 	Ctime    int64
 	Utime    int64
 }
