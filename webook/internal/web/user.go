@@ -5,6 +5,7 @@ import (
 	"basic-project/webook/internal/service"
 	"errors"
 	regexp "github.com/dlclark/regexp2"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -97,7 +98,7 @@ func (u *UserHandle) Login(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	err := u.svc.Login(ctx, domain.User{
+	user, err := u.svc.Login(ctx, domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -109,6 +110,10 @@ func (u *UserHandle) Login(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "系统异常")
 		return
 	}
+	// 登录成功
+	sess := sessions.Default(ctx)
+	sess.Set("userId", user.Id)
+	_ = sess.Save()
 	ctx.String(http.StatusOK, "登录成功")
 
 }
@@ -118,5 +123,5 @@ func (u *UserHandle) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandle) Profile(ctx *gin.Context) {
-
+	ctx.String(http.StatusOK, "profile")
 }
