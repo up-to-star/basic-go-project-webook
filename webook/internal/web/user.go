@@ -4,9 +4,11 @@ import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
 	"errors"
+	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"net/http"
 )
 
@@ -33,7 +35,8 @@ func NewUserHandle(svc *service.UserService) *UserHandle {
 func (u *UserHandle) RegisterRoutes(server *gin.Engine) {
 	ug := server.Group("/users")
 	ug.POST("/signup", u.Signup)
-	ug.POST("/login", u.Login)
+	//ug.POST("/login", u.Login)
+	ug.POST("/login", u.LoginJWT)
 	ug.POST("/edit", u.Edit)
 	ug.GET("/profile", u.Profile)
 }
@@ -89,6 +92,7 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 	ctx.String(http.StatusOK, "注册成功")
 }
 
+// Login session 版本的login
 func (u *UserHandle) Login(ctx *gin.Context) {
 	type LoginReq struct {
 		Email    string `json:"email"`
@@ -117,6 +121,39 @@ func (u *UserHandle) Login(ctx *gin.Context) {
 		MaxAge: 30 * 60,
 	})
 	_ = sess.Save()
+	ctx.String(http.StatusOK, "登录成功")
+}
+
+// LoginJWT session 版本的login
+func (u *UserHandle) LoginJWT(ctx *gin.Context) {
+	type LoginReq struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req LoginReq
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	user, err := u.svc.Login(ctx, domain.User{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if errors.Is(err, service.ErrInvalidUserOrPassword) {
+		ctx.String(http.StatusOK, "邮箱或密码错误")
+		return
+	}
+	if err != nil {
+		ctx.String(http.StatusOK, "系统异常")
+		return
+	}
+	// 登录成功, jwt 设置登录状态
+	token := jwt.New(jwt.SigningMethodHS256)
+	tokenStr, err := token.SignedString([]byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "系统异常")
+	}
+	ctx.Header("x-jwt-token", tokenStr)
+	fmt.Println(user)
 	ctx.String(http.StatusOK, "登录成功")
 }
 

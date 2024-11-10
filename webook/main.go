@@ -29,8 +29,8 @@ func initWebServer() *gin.Engine {
 	server.Use(cors.New(cors.Config{
 		//AllowOrigins: []string{"http://localhost:3000"},
 		//AllowMethods: []string{"PUT", "PATCH", "POST"},
-		AllowHeaders: []string{"Content-Type", "Authorization"},
-		//ExposeHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders:  []string{"Content-Type", "Authorization"},
+		ExposeHeaders: []string{"x-jwt-token"},
 		// 是否允许带 cookie 之类的东西
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
@@ -48,7 +48,10 @@ func initWebServer() *gin.Engine {
 		panic(err)
 	}
 	server.Use(sessions.Sessions("mysession", store))
-	server.Use(middleware.NewLoginMiddleWareBuilder().
+	//server.Use(middleware.NewLoginMiddleWareBuilder().
+	//	IgnorePath("/users/login").
+	//	IgnorePath("/users/signup").Build())
+	server.Use(middleware.NewLoginJWTMiddleWareBuilder().
 		IgnorePath("/users/login").
 		IgnorePath("/users/signup").Build())
 	return server
