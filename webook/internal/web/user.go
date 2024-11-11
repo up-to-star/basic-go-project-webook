@@ -4,12 +4,12 @@ import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
 	"errors"
-	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"time"
 )
 
 const (
@@ -147,13 +147,18 @@ func (u *UserHandle) LoginJWT(ctx *gin.Context) {
 		return
 	}
 	// 登录成功, jwt 设置登录状态
-	token := jwt.New(jwt.SigningMethodHS256)
+	claims := UserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
+		},
+		Uid: user.Id,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString([]byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"))
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "系统异常")
 	}
 	ctx.Header("x-jwt-token", tokenStr)
-	fmt.Println(user)
 	ctx.String(http.StatusOK, "登录成功")
 }
 
@@ -179,4 +184,9 @@ func (u *UserHandle) Logout(ctx *gin.Context) {
 	sess.Options(sessions.Options{MaxAge: -1})
 	_ = sess.Save()
 	ctx.String(http.StatusOK, "退出登录成功")
+}
+
+type UserClaims struct {
+	jwt.RegisteredClaims
+	Uid int64
 }

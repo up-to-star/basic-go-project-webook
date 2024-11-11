@@ -31,4 +31,4 @@
   + Signature：签名，根据 header 和 token 生成。
 
 go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/golang-jwt/jwt
-
+![img.png](imgs/jwt.png)
