@@ -1,6 +1,7 @@
 package main
 
 import (
+	"basic-project/webook/config"
 	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
 	"basic-project/webook/internal/repository"
 	"basic-project/webook/internal/repository/dao"
@@ -20,11 +21,10 @@ import (
 )
 
 func main() {
-	//db := initDB()
-	//u := initUser(db)
-	//server := initWebServer()
-	//u.RegisterRoutes(server)
-	server := gin.Default()
+	db := initDB()
+	u := initUser(db)
+	server := initWebServer()
+	u.RegisterRoutes(server)
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello world")
 	})
@@ -55,7 +55,7 @@ func initWebServer() *gin.Engine {
 		panic(err)
 	}
 	redisClient := rds.NewClient(&rds.Options{
-		Addr: "localhost:6380",
+		Addr: config.Config.Redis.Addr,
 	})
 
 	// 基于redis的限流
@@ -71,7 +71,7 @@ func initWebServer() *gin.Engine {
 }
 
 func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open("root:root@tcp(localhost:13316)/webook?charset=utf8mb4&parseTime=True&loc=Local"))
+	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
 	if err != nil {
 		panic(err)
 	}
