@@ -32,3 +32,10 @@
 
 go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/golang-jwt/jwt
 ![img.png](imgs/jwt.png)
+
+## 性能优化
+### 引入缓存
+![img.png](imgs/redis-cache.png)
+
+## 短信验证码登录
+### 短信服务(基础)
