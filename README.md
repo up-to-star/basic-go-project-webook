@@ -38,4 +38,8 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 ![img.png](imgs/redis-cache.png)
 
 ## 短信验证码登录
+### 服务划分
+![img.png](imgs/messageservice.png)
 ### 短信服务(基础)
+根据不同的服务，试着抽象出接口，方便扩展
+![img.png](imgs/sms1.png)
