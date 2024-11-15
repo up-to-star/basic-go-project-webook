@@ -2,7 +2,9 @@ package main
 
 import (
 	"basic-project/webook/config"
+	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
 	"basic-project/webook/internal/repository"
+	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
 	"basic-project/webook/internal/service"
 	"basic-project/webook/internal/web"
@@ -11,6 +13,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	rds "github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -20,8 +23,11 @@ import (
 
 func main() {
 	db := initDB()
-	u := initUser(db)
-	server := initWebServer()
+	redisClient := rds.NewClient(&rds.Options{
+		Addr: config.Config.Redis.Addr,
+	})
+	u := initUser(db, redisClient)
+	server := initWebServer(redisClient)
 	u.RegisterRoutes(server)
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello world")
@@ -29,7 +35,7 @@ func main() {
 	_ = server.Run(":8080")
 }
 
-func initWebServer() *gin.Engine {
+func initWebServer(redisClient rds.Cmdable) *gin.Engine {
 	server := gin.Default()
 	server.Use(cors.New(cors.Config{
 		//AllowOrigins: []string{"http://localhost:3000"},
@@ -52,12 +58,9 @@ func initWebServer() *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	//redisClient := rds.NewClient(&rds.Options{
-	//	Addr: config.Config.Redis.Addr,
-	//})
 
 	// 基于redis的限流
-	// server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 	server.Use(sessions.Sessions("mysession", store))
 	//server.Use(middleware.NewLoginMiddleWareBuilder().
 	//	IgnorePath("/users/login").
@@ -80,9 +83,10 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func initUser(db *gorm.DB) *web.UserHandle {
+func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
 	ud := dao.NewUserDAO(db)
-	repo := repository.NewUserRepository(ud)
+	uc := cache.NewUserCache(c)
+	repo := repository.NewUserRepository(ud, uc)
 	svc := service.NewUserService(repo)
 	u := web.NewUserHandle(svc)
 	return u
