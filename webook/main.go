@@ -2,7 +2,6 @@ package main
 
 import (
 	"basic-project/webook/config"
-	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
 	"basic-project/webook/internal/repository"
 	"basic-project/webook/internal/repository/dao"
 	"basic-project/webook/internal/service"
@@ -12,7 +11,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	rds "github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -54,12 +52,12 @@ func initWebServer() *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	redisClient := rds.NewClient(&rds.Options{
-		Addr: config.Config.Redis.Addr,
-	})
+	//redisClient := rds.NewClient(&rds.Options{
+	//	Addr: config.Config.Redis.Addr,
+	//})
 
 	// 基于redis的限流
-	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+	// server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 	server.Use(sessions.Sessions("mysession", store))
 	//server.Use(middleware.NewLoginMiddleWareBuilder().
 	//	IgnorePath("/users/login").
