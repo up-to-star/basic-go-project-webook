@@ -42,4 +42,23 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 ![img.png](imgs/messageservice.png)
 ### 短信服务(基础)
 根据不同的服务，试着抽象出接口，方便扩展
+
 ![img.png](imgs/sms1.png)
+
+### 发送验证码
+![img.png](imgs/sendmsg.png)
+
+在分布式场景下，存在并发问题
+
+![img.png](imgs/bingfawenti.png)
+
+可以利用redis的单线程特性解决这个问题
+
+![img.png](imgs/redisbingfa.png)
+
+发送验证码实现流程
+![img.png](imgs/sendmessage.png)
+
+验证验证码流程
+
+![img.png](imgs/verifycode.png)
