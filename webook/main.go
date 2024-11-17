@@ -23,13 +23,14 @@ import (
 )
 
 func main() {
-	db := initDB()
-	redisClient := rds.NewClient(&rds.Options{
-		Addr: config.Config.Redis.Addr,
-	})
-	u := initUser(db, redisClient)
-	server := initWebServer(redisClient)
-	u.RegisterRoutes(server)
+	//db := initDB()
+	//redisClient := rds.NewClient(&rds.Options{
+	//	Addr: config.Config.Redis.Addr,
+	//})
+	//u := initUser(db, redisClient)
+	//server := initWebServer(redisClient)
+	//u.RegisterRoutes(server)
+	server := InitWebServer()
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello world")
 	})
@@ -92,7 +93,7 @@ func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
 	repo := repository.NewUserRepository(ud, uc)
 	svc := service.NewUserService(repo)
 	codeCache := cache.NewCodeCache(c)
-	codeRepo := repository.NewCadeRepository(codeCache)
+	codeRepo := repository.NewCodeRepository(codeCache)
 	smsSvc := memory.NewService()
 	codeSvc := service.NewCodeService(codeRepo, smsSvc)
 	u := web.NewUserHandle(svc, codeSvc)

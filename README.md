@@ -72,3 +72,20 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 按照最严格的标准来说，我们其实需要一个 UserAggrService，即用户聚合服务，在这个服务里面完
 成发送验证码和验证码登录的逻辑。
 ![img.png](imgs/useragg.png)
+
+## 依赖注入
+依赖注入，是指 A 依赖于 B，也就是 A 要调用 B 上的方法，那么 A 在初始化的时候就要求传入
+一个构建好的 B。
+
+### IoC：控制反转
+依赖注入是控制反转的一种实现形式。
+
+还有一种叫做依赖发现。比如说 A 调用 B，然后 A 自己去
+找到可用的 B，那就是依赖发现。
+
+控制反转的意思就是，UserHandler 不会去初始化 UserService。要么外面传入 UserService 给 UserHandler，这种叫做依赖注入；要么是 UserHandler 自己去找一个 UserService，这种叫做依赖查找。
+
+![img.png](imgs/ioc.png)
+
+要使用 `wire` 实现依赖注入，官方链接: https://github.com/google/wire?tab=readme-ov-file
+
