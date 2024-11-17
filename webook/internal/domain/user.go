@@ -11,4 +11,6 @@ type User struct {
 	Phone    string
 	Birthday time.Time
 	AboutMe  string
+	Ctime    time.Time
+	Utime    time.Time
 }

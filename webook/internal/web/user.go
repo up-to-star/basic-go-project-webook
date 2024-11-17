@@ -4,11 +4,13 @@ import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
 	"errors"
+	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -60,6 +62,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		return
 	}
 
 	ok, err := u.phoneExp.MatchString(req.Phone)
@@ -92,9 +95,26 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 		})
 		return
 	}
+
+	user, err := u.svc.FindOrCreate(ctx, req.Phone)
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+		return
+	}
+	err = u.setJWTToken(ctx, user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+		return
+	}
 	ctx.JSON(http.StatusOK, &Result{
-		Code: 4,
-		Msg:  "验证码校验通过",
+		Code: 0,
+		Msg:  "登录成功",
 	})
 
 }
@@ -245,28 +265,48 @@ func (u *UserHandle) LoginJWT(ctx *gin.Context) {
 		Password: req.Password,
 	})
 	if errors.Is(err, service.ErrInvalidUserOrPassword) {
-		ctx.String(http.StatusOK, "邮箱或密码错误")
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 4,
+			Msg:  "邮箱或密码错误",
+		})
 		return
 	}
 	if err != nil {
-		ctx.String(http.StatusOK, "系统异常")
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
 		return
 	}
 	// 登录成功, jwt 设置登录状态
+	if err = u.setJWTToken(ctx, user.Id); err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, &Result{
+		Code: 0,
+		Msg:  "登录成功",
+	})
+}
+
+func (u *UserHandle) setJWTToken(ctx *gin.Context, uid int64) error {
 	claims := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
 		},
-		Uid:       user.Id,
+		Uid:       uid,
 		UserAgent: ctx.Request.UserAgent(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString([]byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"))
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "系统异常")
+		return err
 	}
 	ctx.Header("x-jwt-token", tokenStr)
-	ctx.String(http.StatusOK, "登录成功")
+	return nil
 }
 
 func (u *UserHandle) Edit(ctx *gin.Context) {
@@ -283,7 +323,42 @@ func (u *UserHandle) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandle) Profile(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "profile")
+	tokenHeader := ctx.GetHeader("Authorization")
+	segs := strings.Split(tokenHeader, " ")
+	tokenStr := segs[1]
+	claims := &UserClaims{}
+	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"), nil
+	})
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+	}
+	user, err := u.svc.Profile(ctx, claims.Uid)
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+	}
+	fmt.Println(user)
+
+	type ProfileData struct {
+		Nickname string `json:"Nickname"`
+		Email    string `json:"Email"`
+		Phone    string `json:"Phone"`
+		Birthday string `json:"Birthday"`
+		AboutMe  string `json:"AboutMe"`
+	}
+	ctx.JSON(http.StatusOK, &ProfileData{
+		Nickname: user.Nickname,
+		Email:    user.Email,
+		Phone:    user.Phone,
+		Birthday: user.Birthday.Format("2006-01-02"),
+		AboutMe:  user.AboutMe,
+	})
 }
 
 func (u *UserHandle) Logout(ctx *gin.Context) {

@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	ErrUserDuplicateEmail = errors.New("邮箱冲突")
-	ErrUserNotFount       = gorm.ErrRecordNotFound
+	ErrUserDuplicate = errors.New("账号已经被注册过了")
+	ErrUserNotFount  = gorm.ErrRecordNotFound
 )
 
 type UserDAO struct {
@@ -33,7 +33,7 @@ func (dao *UserDAO) Insert(ctx context.Context, user User) error {
 	if errors.As(err, &mysqlErr) {
 		const uniqueConflictsErrNo uint16 = 1062
 		if mysqlErr.Number == uniqueConflictsErrNo {
-			return ErrUserDuplicateEmail
+			return ErrUserDuplicate
 		}
 	}
 	return err
@@ -51,10 +51,17 @@ func (dao *UserDAO) FindById(ctx context.Context, id int64) (User, error) {
 	return user, err
 }
 
+func (dao *UserDAO) FindByPhone(ctx context.Context, phone string) (User, error) {
+	var user User
+	err := dao.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
+	return user, err
+}
+
 // User 直接对应数据库表
 type User struct {
-	Id       int64          `gorm:"primaryKey,autoIncrement"`
-	Email    string         `gorm:"type:varchar(255);unique"`
+	Id int64 `gorm:"primaryKey,autoIncrement"`
+	// 唯一索引允许有多个null, 不允许有多个 ""
+	Email    sql.NullString `gorm:"type:varchar(255);unique"`
 	Password string         `gorm:"type:varchar(255)"`
 	Phone    sql.NullString `gorm:"type:char(11);unique"`
 	Nickname string         `gorm:"type:varchar(128)"`

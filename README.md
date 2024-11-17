@@ -62,3 +62,13 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 验证验证码流程
 
 ![img.png](imgs/verifycode.png)
+
+实现接口
+
+![img.png](imgs/msgi.png)
+引入手机号之后，一个表格里会有两个唯一索引(`email` 和 `phone`), mysql中允许唯一索引可以有多个`null`，但不能有多个`""`
+在 Go 里面, 用 `sql.NullXXX` 这一家族类, 让 ORM 插入一个 `NULL` 值。
+
+按照最严格的标准来说，我们其实需要一个 UserAggrService，即用户聚合服务，在这个服务里面完
+成发送验证码和验证码登录的逻辑。
+![img.png](imgs/useragg.png)

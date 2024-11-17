@@ -5,6 +5,7 @@ import (
 	"basic-project/webook/internal/repository"
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -46,4 +47,19 @@ func (svc *UserService) Login(ctx context.Context, user domain.User) (domain.Use
 func (svc *UserService) Profile(ctx context.Context, id int64) (domain.User, error) {
 	user, err := svc.repo.FindById(ctx, id)
 	return user, err
+}
+
+func (svc *UserService) FindOrCreate(ctx *gin.Context, phone string) (domain.User, error) {
+	user, err := svc.repo.FindByPhone(ctx, phone)
+	if !errors.Is(err, repository.ErrUserNotFound) {
+		return user, err
+	}
+	u := domain.User{
+		Phone: phone,
+	}
+	err = svc.repo.Create(ctx, u)
+	if err != nil {
+		return u, err
+	}
+	return svc.repo.FindByPhone(ctx, phone)
 }

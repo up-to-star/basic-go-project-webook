@@ -20,7 +20,7 @@ function Page() {
 
     if (isLoading) return <p>Loading...</p>
     if (!data) return <p>No profile data</p>
-
+    
     return (
         <ProDescriptions
             column={1}
