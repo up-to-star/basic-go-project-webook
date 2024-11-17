@@ -319,6 +319,41 @@ func (u *UserHandle) Edit(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
+	tokenHeader := ctx.GetHeader("Authorization")
+	segs := strings.Split(tokenHeader, " ")
+	tokenStr := segs[1]
+	claims := &UserClaims{}
+	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"), nil
+	})
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		return
+	}
+	t, err := time.Parse("2006-01-02", req.Birthday)
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		return
+	}
+	user := domain.User{
+		Id:       claims.Uid,
+		Nickname: req.Nickname,
+		Birthday: t,
+		AboutMe:  req.AboutMe,
+	}
+
+	err = u.svc.Edit(ctx, user)
+
+	ctx.JSON(http.StatusOK, &Result{
+		Code: 0,
+		Msg:  "修改成功",
+	})
 
 }
 

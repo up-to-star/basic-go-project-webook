@@ -47,6 +47,10 @@ func (cache *UserCache) Set(ctx context.Context, user domain.User) error {
 	return cache.client.Set(ctx, cache.key(user.Id), val, cache.expiration).Err()
 }
 
+func (cache *UserCache) Del(ctx context.Context, id int64) error {
+	return cache.client.Del(ctx, cache.key(id)).Err()
+}
+
 func (cache *UserCache) key(id int64) string {
 	return fmt.Sprintf("user:info:%d", id)
 }

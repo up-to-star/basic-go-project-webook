@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -55,6 +56,12 @@ func (dao *UserDAO) FindByPhone(ctx context.Context, phone string) (User, error)
 	var user User
 	err := dao.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
 	return user, err
+}
+
+func (dao *UserDAO) UpdateById(ctx *gin.Context, user User) error {
+	now := time.Now().UnixMilli()
+	user.Utime = now
+	return dao.db.WithContext(ctx).Model(&User{}).Where("id = ?", user.Id).Updates(user).Error
 }
 
 // User 直接对应数据库表

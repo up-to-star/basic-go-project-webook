@@ -63,3 +63,7 @@ func (svc *UserService) FindOrCreate(ctx *gin.Context, phone string) (domain.Use
 	}
 	return svc.repo.FindByPhone(ctx, phone)
 }
+
+func (svc *UserService) Edit(ctx *gin.Context, user domain.User) error {
+	return svc.repo.UpdateById(ctx, user)
+}

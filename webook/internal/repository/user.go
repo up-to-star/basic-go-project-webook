@@ -6,6 +6,7 @@ import (
 	"basic-project/webook/internal/repository/dao"
 	"context"
 	"database/sql"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -101,4 +102,12 @@ func (r *UserRepository) domainToEntity(u domain.User) dao.User {
 		Ctime:    u.Ctime.UnixMilli(),
 		Utime:    u.Utime.UnixMilli(),
 	}
+}
+
+func (r *UserRepository) UpdateById(ctx *gin.Context, user domain.User) error {
+	_, err := r.cache.Get(ctx, user.Id)
+	if err == nil {
+		_ = r.cache.Del(ctx, user.Id)
+	}
+	return r.dao.UpdateById(ctx, r.domainToEntity(user))
 }
