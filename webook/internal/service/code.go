@@ -8,6 +8,11 @@ import (
 	"math/rand"
 )
 
+var (
+	ErrCodeSendTooMany   = repository.ErrCodeSendTooMany
+	ErrCodeVerifyTooMany = repository.ErrCodeVerifyTooMany
+)
+
 const templateId = "123456"
 
 type CodeService struct {
@@ -15,9 +20,10 @@ type CodeService struct {
 	smsSvc sms.Service
 }
 
-func NewCodeService(repo *repository.CodeRepository) *CodeService {
+func NewCodeService(repo *repository.CodeRepository, smsSvc sms.Service) *CodeService {
 	return &CodeService{
-		repo: repo,
+		repo:   repo,
+		smsSvc: smsSvc,
 	}
 }
 

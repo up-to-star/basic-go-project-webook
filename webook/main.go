@@ -7,6 +7,7 @@ import (
 	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
 	"basic-project/webook/internal/service"
+	"basic-project/webook/internal/service/sms/memory"
 	"basic-project/webook/internal/web"
 	"basic-project/webook/internal/web/middleware"
 	"github.com/gin-contrib/cors"
@@ -63,11 +64,13 @@ func initWebServer(redisClient rds.Cmdable) *gin.Engine {
 	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 	server.Use(sessions.Sessions("mysession", store))
 	//server.Use(middleware.NewLoginMiddleWareBuilder().
-	//	IgnorePath("/users/login").
-	//	IgnorePath("/users/signup").Build())
+	//	IgnorePaths("/users/login").
+	//	IgnorePaths("/users/signup").Build())
 	server.Use(middleware.NewLoginJWTMiddleWareBuilder().
-		IgnorePath("/users/login").
-		IgnorePath("/users/signup").Build())
+		IgnorePaths("/users/login").
+		IgnorePaths("/users/signup").
+		IgnorePaths("/users/login_sms/code/send").
+		IgnorePaths("/users/login_sms").Build())
 	return server
 }
 
@@ -88,6 +91,10 @@ func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
 	uc := cache.NewUserCache(c)
 	repo := repository.NewUserRepository(ud, uc)
 	svc := service.NewUserService(repo)
-	u := web.NewUserHandle(svc)
+	codeCache := cache.NewCodeCache(c)
+	codeRepo := repository.NewCadeRepository(codeCache)
+	smsSvc := memory.NewService()
+	codeSvc := service.NewCodeService(codeRepo, smsSvc)
+	u := web.NewUserHandle(svc, codeSvc)
 	return u
 }

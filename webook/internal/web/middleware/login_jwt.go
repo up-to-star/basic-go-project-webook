@@ -17,7 +17,7 @@ func NewLoginJWTMiddleWareBuilder() *LoginJWTMiddleWareBuilder {
 	return &LoginJWTMiddleWareBuilder{}
 }
 
-func (l *LoginJWTMiddleWareBuilder) IgnorePath(path string) *LoginJWTMiddleWareBuilder {
+func (l *LoginJWTMiddleWareBuilder) IgnorePaths(path string) *LoginJWTMiddleWareBuilder {
 	l.paths = append(l.paths, path)
 	return l
 }
