@@ -15,20 +15,25 @@ var (
 
 const templateId = "123456"
 
-type CodeService struct {
-	repo   *repository.CodeRepository
+type CodeService interface {
+	Send(ctx context.Context, biz string, phone string) error
+	Verify(ctx context.Context, biz string, phong string, code string) (bool, error)
+}
+
+type codeService struct {
+	repo   repository.CodeRepository
 	smsSvc sms.Service
 }
 
-func NewCodeService(repo *repository.CodeRepository, smsSvc sms.Service) *CodeService {
-	return &CodeService{
+func NewCodeService(repo repository.CodeRepository, smsSvc sms.Service) CodeService {
+	return &codeService{
 		repo:   repo,
 		smsSvc: smsSvc,
 	}
 }
 
 // Send biz 区别使用的业务
-func (svc *CodeService) Send(ctx context.Context, biz string, phone string) error {
+func (svc *codeService) Send(ctx context.Context, biz string, phone string) error {
 	code := svc.generateCode()
 	// 放入 redis
 	err := svc.repo.Store(ctx, biz, phone, code)
@@ -43,11 +48,11 @@ func (svc *CodeService) Send(ctx context.Context, biz string, phone string) erro
 	return err
 }
 
-func (svc *CodeService) Verify(ctx context.Context, biz string, phong string, code string) (bool, error) {
+func (svc *codeService) Verify(ctx context.Context, biz string, phong string, code string) (bool, error) {
 	return svc.repo.Verify(ctx, biz, phong, code)
 }
 
-func (svc *CodeService) generateCode() string {
+func (svc *codeService) generateCode() string {
 	num := rand.Intn(1000000)
 	return fmt.Sprintf("%06d", num)
 }

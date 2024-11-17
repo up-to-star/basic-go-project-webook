@@ -23,14 +23,14 @@ const (
 
 // UserHandle 定义和 user 用户有关的路由
 type UserHandle struct {
-	svc         *service.UserService
-	codeSvc     *service.CodeService
+	svc         service.UserService
+	codeSvc     service.CodeService
 	emailExp    *regexp.Regexp
 	passwordExp *regexp.Regexp
 	phoneExp    *regexp.Regexp
 }
 
-func NewUserHandle(svc *service.UserService, codeSvc *service.CodeService) *UserHandle {
+func NewUserHandle(svc service.UserService, codeSvc service.CodeService) *UserHandle {
 	return &UserHandle{
 		svc:         svc,
 		emailExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
