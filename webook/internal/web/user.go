@@ -49,6 +49,7 @@ func (u *UserHandle) RegisterRoutes(server *gin.Engine) {
 	ug.GET("/profile", u.Profile)
 	ug.POST("/login_sms/code/send", u.SendLoginSmsCode)
 	ug.POST("/login_sms", u.LoginSMS)
+	ug.POST("/logout", u.Logout)
 }
 
 func (u *UserHandle) LoginSMS(ctx *gin.Context) {
