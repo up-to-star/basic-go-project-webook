@@ -89,3 +89,31 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 
 要使用 `wire` 实现依赖注入，官方链接: https://github.com/google/wire?tab=readme-ov-file
 
+## 单元测试
+### 测试UserHandler
++ 构造http请求
+  ![img.png](imgs/gouzaohttp.png)
+  ```go
+  req, err := http.NewRequest(http.MethodPost, "/users/signup", bytes.NewReader([]byte(`
+  {
+    "email": "123@qq.com",
+    "password": "hello#world123",
+    "confirmPassword": "hello#world123"
+  }`)))
+  ```
++ 获得 HTTP 响应
+  ![img.png](imgs/httprequest.png)
+  传入一个可以存住数据的 `http.ResponseWriter`, 测试的时候，返回的响应实际上是写入到了
+  这个特殊的 ResponseWriter 里面
+  ```go
+  recorder := httptest.NewRecorder()
+  server.ServeHTTP(recorder, req)
+  ```
++ 使用`mock`解决初始化需要的service接口
+  命令: mockgen -source=./webook/internal/service/user.go -package=svcmocks -destination=./webook/internal/service/mocks/user.mock.go
+  + source：也就是你接口所在的文件。
+  + destination：也就是你生成代码的目标路径。
+  + package：也就是生成代码的文件的 package。
+  
+  `mock` 使用
+  ![img.png](imgs/mock.png)
