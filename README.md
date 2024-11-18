@@ -102,7 +102,9 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
   }`)))
   ```
 + 获得 HTTP 响应
+
   ![img.png](imgs/httprequest.png)
+
   传入一个可以存住数据的 `http.ResponseWriter`, 测试的时候，返回的响应实际上是写入到了
   这个特殊的 ResponseWriter 里面
   ```go
