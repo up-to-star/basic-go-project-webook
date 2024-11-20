@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
+	ratelimit2 "basic-project/webook/internal/pkg/ratelimit"
 	"basic-project/webook/internal/web"
 	"basic-project/webook/internal/web/middleware"
 	"github.com/gin-contrib/cors"
@@ -28,7 +29,7 @@ func InitGinMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			},
 			MaxAge: 12 * time.Hour,
 		}),
-		ratelimit.NewBuilder(redisClient, time.Second, 100).Build(),
+		ratelimit.NewBuilder(ratelimit2.NewRedisSlideWindowLimiter(redisClient, time.Second, 100)).Build(),
 		middleware.NewLoginJWTMiddleWareBuilder().
 			IgnorePaths("/users/login").
 			IgnorePaths("/users/signup").

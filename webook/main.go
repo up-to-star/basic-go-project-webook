@@ -3,6 +3,7 @@ package main
 import (
 	"basic-project/webook/config"
 	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
+	ratelimit2 "basic-project/webook/internal/pkg/ratelimit"
 	"basic-project/webook/internal/repository"
 	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
@@ -62,7 +63,7 @@ func initWebServer(redisClient rds.Cmdable) *gin.Engine {
 	}
 
 	// 基于redis的限流
-	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+	server.Use(ratelimit.NewBuilder(ratelimit2.NewRedisSlideWindowLimiter(redisClient, time.Second, 100)).Build())
 	server.Use(sessions.Sessions("mysession", store))
 	//server.Use(middleware.NewLoginMiddleWareBuilder().
 	//	IgnorePaths("/users/login").
