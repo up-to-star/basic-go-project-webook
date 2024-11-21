@@ -24,7 +24,7 @@ func NewService(svc sms.Service, limiter ratelimit.Limiter) sms.Service {
 }
 
 // Send 装饰器
-func (s *RatelimitSMSService) Send(ctx context.Context, tplId string, args []string, numbers ...string) error {
+func (s *RatelimitSMSService) Send(ctx context.Context, biz string, args []string, numbers ...string) error {
 	// 之前的工作
 	limited, err := s.limiter.Limit(ctx, "sms:tencent")
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *RatelimitSMSService) Send(ctx context.Context, tplId string, args []str
 	if limited {
 		return errLimited
 	}
-	err = s.svc.Send(ctx, tplId, args, numbers...)
+	err = s.svc.Send(ctx, biz, args, numbers...)
 	// 之后的操作
 	return err
 }

@@ -15,7 +15,7 @@ type TimeOutFailoverSMSService struct {
 	threshold uint32
 }
 
-func (t *TimeOutFailoverSMSService) Send(ctx context.Context, tplId string, args []string, numbers ...string) error {
+func (t *TimeOutFailoverSMSService) Send(ctx context.Context, biz string, args []string, numbers ...string) error {
 	cnt := atomic.LoadUint32(&t.cnt)
 	idx := atomic.LoadUint32(&t.idx)
 	if cnt > t.threshold {
@@ -25,7 +25,7 @@ func (t *TimeOutFailoverSMSService) Send(ctx context.Context, tplId string, args
 		}
 	}
 	svc := t.svcs[int(idx)]
-	err := svc.Send(ctx, tplId, args, numbers...)
+	err := svc.Send(ctx, biz, args, numbers...)
 	switch {
 	case err == nil:
 		atomic.StoreUint32(&t.cnt, 0)

@@ -21,11 +21,11 @@ func NewService(appId, signName string, client *sms.Client) *Service {
 	}
 }
 
-func (s *Service) Send(ctx context.Context, tplId string, args []string, numbers ...string) error {
+func (s *Service) Send(ctx context.Context, biz string, args []string, numbers ...string) error {
 	req := sms.NewSendSmsRequest()
 	req.SmsSdkAppId = s.appId
 	req.SignName = s.signName
-	req.TemplateId = &tplId
+	req.TemplateId = &biz
 	req.PhoneNumberSet = str2strPtr(numbers...)
 	req.TemplateParamSet = str2strPtr(args...)
 	resp, err := s.client.SendSms(req)

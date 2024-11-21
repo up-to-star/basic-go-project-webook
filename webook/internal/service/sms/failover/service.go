@@ -19,9 +19,9 @@ func NewFailoverSMSService(svcs []sms.Service) sms.Service {
 	}
 }
 
-func (f *FailoverSMSService) Send(ctx context.Context, tplId string, args []string, numbers ...string) error {
+func (f *FailoverSMSService) Send(ctx context.Context, biz string, args []string, numbers ...string) error {
 	//for _, svc := range f.svcs {
-	//	err := svc.Send(ctx, tplId, args, numbers...)
+	//	err := svc.Send(ctx, biz, args, numbers...)
 	//	if err == nil {
 	//		return nil
 	//	}
@@ -31,7 +31,7 @@ func (f *FailoverSMSService) Send(ctx context.Context, tplId string, args []stri
 	idx := atomic.AddUint64(&f.idx, 1)
 	length := uint64(len(f.svcs))
 	for i := idx; i < idx+length; i++ {
-		err := f.svcs[int(i%length)].Send(ctx, tplId, args, numbers...)
+		err := f.svcs[int(i%length)].Send(ctx, biz, args, numbers...)
 		switch {
 		case err == nil:
 			return nil
