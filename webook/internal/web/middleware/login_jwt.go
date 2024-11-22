@@ -2,15 +2,16 @@ package middleware
 
 import (
 	"basic-project/webook/internal/web"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/redis/go-redis/v9"
 	"net/http"
-	"strings"
-	"time"
 )
 
 type LoginJWTMiddleWareBuilder struct {
 	paths []string
+	cmd   redis.Cmdable
 }
 
 func NewLoginJWTMiddleWareBuilder() *LoginJWTMiddleWareBuilder {
@@ -31,17 +32,7 @@ func (l *LoginJWTMiddleWareBuilder) Build() gin.HandlerFunc {
 		}
 
 		// JWT 校验
-		tokenHeader := ctx.GetHeader("Authorization")
-		if tokenHeader == "" {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		segs := strings.Split(tokenHeader, " ")
-		if len(segs) != 2 {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		tokenStr := segs[1]
+		tokenStr := web.ExtractToken(ctx)
 		claims := &web.UserClaims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"), nil
@@ -59,15 +50,10 @@ func (l *LoginJWTMiddleWareBuilder) Build() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-
-		now := time.Now()
-		if claims.ExpiresAt.Sub(now) < time.Minute*29 {
-			claims.ExpiresAt = jwt.NewNumericDate(now.Add(time.Minute * 30))
-			tokenStr, err = token.SignedString([]byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"))
-			if err != nil {
-				// log
-			}
-			ctx.Header("x-jwt-token", tokenStr)
+		cnt, err := l.cmd.Exists(ctx, fmt.Sprintf("users:ssid:%s", claims.Ssid)).Result()
+		if err != nil || cnt > 0 {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 	}
 }

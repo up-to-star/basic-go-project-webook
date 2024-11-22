@@ -4,12 +4,7 @@ import (
 	"basic-project/webook/config"
 	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
 	ratelimit2 "basic-project/webook/internal/pkg/ratelimit"
-	"basic-project/webook/internal/repository"
-	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
-	"basic-project/webook/internal/service"
-	"basic-project/webook/internal/service/sms/memory"
-	"basic-project/webook/internal/web"
 	"basic-project/webook/internal/web/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -88,15 +83,15 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
-	ud := dao.NewUserDAO(db)
-	uc := cache.NewUserCache(c)
-	repo := repository.NewUserRepository(ud, uc)
-	svc := service.NewUserService(repo)
-	codeCache := cache.NewCodeCache(c)
-	codeRepo := repository.NewCodeRepository(codeCache)
-	smsSvc := memory.NewService()
-	codeSvc := service.NewCodeService(codeRepo, smsSvc)
-	u := web.NewUserHandle(svc, codeSvc)
-	return u
-}
+//func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
+//	ud := dao.NewUserDAO(db)
+//	uc := cache.NewUserCache(c)
+//	repo := repository.NewUserRepository(ud, uc)
+//	svc := service.NewUserService(repo)
+//	codeCache := cache.NewCodeCache(c)
+//	codeRepo := repository.NewCodeRepository(codeCache)
+//	smsSvc := memory.NewService()
+//	codeSvc := service.NewCodeService(codeRepo, smsSvc)
+//	u := web.NewUserHandle(svc, codeSvc)
+//	return u
+//}

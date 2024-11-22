@@ -36,6 +36,7 @@ func InitGinMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			IgnorePaths("/users/login_sms/code/send").
 			IgnorePaths("/oauth2/wechat/authurl").
 			IgnorePaths("/oauth2/wechat/callback").
+			IgnorePaths("/users/refresh_token").
 			IgnorePaths("/users/login_sms").Build(),
 	}
 }
