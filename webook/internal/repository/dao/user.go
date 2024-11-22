@@ -21,6 +21,7 @@ type UserDAO interface {
 	FindById(ctx context.Context, id int64) (User, error)
 	FindByPhone(ctx context.Context, phone string) (User, error)
 	UpdateById(ctx *gin.Context, user User) error
+	FindByWechat(ctx *gin.Context, openId string) (User, error)
 }
 
 type GORMUserDAO struct {
@@ -72,16 +73,24 @@ func (dao *GORMUserDAO) UpdateById(ctx *gin.Context, user User) error {
 	return dao.db.WithContext(ctx).Model(&User{}).Where("id = ?", user.Id).Updates(user).Error
 }
 
+func (dao *GORMUserDAO) FindByWechat(ctx *gin.Context, openId string) (User, error) {
+	var user User
+	err := dao.db.WithContext(ctx).Where("wechat_open_id = ?", openId).First(&user).Error
+	return user, err
+}
+
 // User 直接对应数据库表
 type User struct {
 	Id int64 `gorm:"primaryKey,autoIncrement"`
 	// 唯一索引允许有多个null, 不允许有多个 ""
-	Email    sql.NullString `gorm:"type:varchar(255);unique"`
-	Password string         `gorm:"type:varchar(255)"`
-	Phone    sql.NullString `gorm:"type:char(11);unique"`
-	Nickname string         `gorm:"type:varchar(128)"`
-	AboutMe  string         `gorm:"type:varchar(4096)"`
-	Birthday int64
-	Ctime    int64
-	Utime    int64
+	Email         sql.NullString `gorm:"type:varchar(255);unique"`
+	Password      string         `gorm:"type:varchar(255)"`
+	Phone         sql.NullString `gorm:"type:char(11);unique"`
+	WechatUnionID sql.NullString `gorm:"type:varchar(255)"`
+	WechatOpenID  sql.NullString `gorm:"type:varchar(255);unique"`
+	Nickname      string         `gorm:"type:varchar(128)"`
+	AboutMe       string         `gorm:"type:varchar(4096)"`
+	Birthday      int64
+	Ctime         int64
+	Utime         int64
 }

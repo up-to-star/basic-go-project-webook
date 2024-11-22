@@ -23,6 +23,7 @@ const (
 
 // UserHandle 定义和 user 用户有关的路由
 type UserHandle struct {
+	jwtHandler
 	svc         service.UserService
 	codeSvc     service.CodeService
 	emailExp    *regexp.Regexp
@@ -293,23 +294,6 @@ func (u *UserHandle) LoginJWT(ctx *gin.Context) {
 	})
 }
 
-func (u *UserHandle) setJWTToken(ctx *gin.Context, uid int64) error {
-	claims := UserClaims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
-		},
-		Uid:       uid,
-		UserAgent: ctx.Request.UserAgent(),
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenStr, err := token.SignedString([]byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQQ"))
-	if err != nil {
-		return err
-	}
-	ctx.Header("x-jwt-token", tokenStr)
-	return nil
-}
-
 func (u *UserHandle) Edit(ctx *gin.Context) {
 	type EditReq struct {
 		Nickname string `json:"nickname"`
@@ -402,10 +386,4 @@ func (u *UserHandle) Logout(ctx *gin.Context) {
 	sess.Options(sessions.Options{MaxAge: -1})
 	_ = sess.Save()
 	ctx.String(http.StatusOK, "退出登录成功")
-}
-
-type UserClaims struct {
-	jwt.RegisteredClaims
-	Uid       int64
-	UserAgent string
 }

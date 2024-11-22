@@ -34,13 +34,17 @@ func InitGinMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			IgnorePaths("/users/login").
 			IgnorePaths("/users/signup").
 			IgnorePaths("/users/login_sms/code/send").
+			IgnorePaths("/oauth2/wechat/authurl").
+			IgnorePaths("/oauth2/wechat/callback").
 			IgnorePaths("/users/login_sms").Build(),
 	}
 }
 
-func InitWebserver(mdls []gin.HandlerFunc, userHdl *web.UserHandle) *gin.Engine {
+func InitWebserver(mdls []gin.HandlerFunc, userHdl *web.UserHandle,
+	oauth2WechatHandler *web.OAuth2WechatHandler) *gin.Engine {
 	server := gin.Default()
 	server.Use(mdls...)
 	userHdl.RegisterRoutes(server)
+	oauth2WechatHandler.RegisterRoutes(server)
 	return server
 }

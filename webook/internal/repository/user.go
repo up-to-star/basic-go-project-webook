@@ -21,6 +21,7 @@ type UserRepository interface {
 	FindByPhone(ctx context.Context, phone string) (domain.User, error)
 	FindById(ctx context.Context, id int64) (domain.User, error)
 	UpdateById(ctx *gin.Context, user domain.User) error
+	FindByWechat(ctx *gin.Context, openId string) (domain.User, error)
 }
 
 type CachedUserRepository struct {
@@ -78,6 +79,23 @@ func (r *CachedUserRepository) FindById(ctx context.Context, id int64) (domain.U
 	return user, nil
 }
 
+func (r *CachedUserRepository) FindByWechat(ctx *gin.Context, openId string) (domain.User, error) {
+	user, err := r.dao.FindByWechat(ctx, openId)
+	if err != nil {
+		return domain.User{}, err
+	}
+	u := r.entityToDomain(user)
+	return u, nil
+}
+
+func (r *CachedUserRepository) UpdateById(ctx *gin.Context, user domain.User) error {
+	_, err := r.cache.Get(ctx, user.Id)
+	if err == nil {
+		_ = r.cache.Del(ctx, user.Id)
+	}
+	return r.dao.UpdateById(ctx, r.domainToEntity(user))
+}
+
 func (r *CachedUserRepository) entityToDomain(ud dao.User) domain.User {
 	return domain.User{
 		Id:       ud.Id,
@@ -85,6 +103,10 @@ func (r *CachedUserRepository) entityToDomain(ud dao.User) domain.User {
 		Password: ud.Password,
 		Nickname: ud.Nickname,
 		Phone:    ud.Phone.String,
+		WechatInfo: domain.WechatInfo{
+			OpenId:  ud.WechatOpenID.String,
+			UnionId: ud.WechatUnionID.String,
+		},
 		Birthday: time.UnixMilli(ud.Birthday),
 		Ctime:    time.UnixMilli(ud.Ctime),
 		Utime:    time.UnixMilli(ud.Utime),
@@ -105,17 +127,17 @@ func (r *CachedUserRepository) domainToEntity(u domain.User) dao.User {
 			String: u.Phone,
 			Valid:  u.Phone != "",
 		},
+		WechatOpenID: sql.NullString{
+			String: u.WechatInfo.OpenId,
+			Valid:  u.WechatInfo.OpenId != "",
+		},
+		WechatUnionID: sql.NullString{
+			String: u.WechatInfo.OpenId,
+			Valid:  u.WechatInfo.OpenId != "",
+		},
 		AboutMe:  u.AboutMe,
 		Birthday: u.Birthday.UnixMilli(),
 		Ctime:    u.Ctime.UnixMilli(),
 		Utime:    u.Utime.UnixMilli(),
 	}
-}
-
-func (r *CachedUserRepository) UpdateById(ctx *gin.Context, user domain.User) error {
-	_, err := r.cache.Get(ctx, user.Id)
-	if err == nil {
-		_ = r.cache.Del(ctx, user.Id)
-	}
-	return r.dao.UpdateById(ctx, r.domainToEntity(user))
 }
