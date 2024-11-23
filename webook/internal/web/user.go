@@ -3,12 +3,13 @@ package web
 import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
+	ijwt "basic-project/webook/internal/web/jwt"
 	"errors"
 	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
 	"net/http"
 	"time"
@@ -23,7 +24,7 @@ const (
 
 // UserHandle 定义和 user 用户有关的路由
 type UserHandle struct {
-	jwtHandler
+	ijwt.Handler
 	svc         service.UserService
 	codeSvc     service.CodeService
 	emailExp    *regexp.Regexp
@@ -32,15 +33,15 @@ type UserHandle struct {
 	cmd         redis.Cmdable
 }
 
-func NewUserHandle(svc service.UserService, codeSvc service.CodeService, cmd redis.Cmdable) *UserHandle {
+func NewUserHandle(svc service.UserService, codeSvc service.CodeService, cmd redis.Cmdable, jwtHdl ijwt.Handler) *UserHandle {
 	return &UserHandle{
-		jwtHandler:  newJwtHandler(),
 		svc:         svc,
 		emailExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
 		passwordExp: regexp.MustCompile(passwordRegexPattern, regexp.None),
 		codeSvc:     codeSvc,
 		phoneExp:    regexp.MustCompile(phoneRegexPattern, regexp.None),
 		cmd:         cmd,
+		Handler:     jwtHdl,
 	}
 }
 
@@ -58,21 +59,21 @@ func (u *UserHandle) RegisterRoutes(server *gin.Engine) {
 }
 
 func (u *UserHandle) RefreshToken(ctx *gin.Context) {
-	refreshTokenStr := ExtractToken(ctx)
-	var rc RefreshClaims
+	refreshTokenStr := u.ExtractToken(ctx)
+	var rc ijwt.RefreshClaims
 	token, err := jwt.ParseWithClaims(refreshTokenStr, &rc, func(*jwt.Token) (interface{}, error) {
-		return u.rtKey, nil
+		return ijwt.RtKey, nil
 	})
 	if err != nil || !token.Valid {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	cnt, err := u.cmd.Exists(ctx, fmt.Sprintf("users:ssid:%s", rc.Ssid)).Result()
-	if err != nil || cnt > 0 {
+	err = u.CheckSession(ctx, rc.Ssid)
+	if err != nil {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	if err = u.setJWTToken(ctx, rc.Uid, rc.Ssid); err != nil {
+	if err = u.SetJWTToken(ctx, rc.Uid, rc.Ssid); err != nil {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -136,7 +137,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 		return
 	}
 
-	if err = u.setLoginToken(ctx, user.Id); err != nil {
+	if err = u.SetLoginToken(ctx, user.Id); err != nil {
 		ctx.JSON(http.StatusOK, &Result{
 			Code: 5,
 			Msg:  "系统异常",
@@ -311,7 +312,7 @@ func (u *UserHandle) LoginJWT(ctx *gin.Context) {
 	}
 	// 登录成功, jwt 设置登录状态
 
-	if err = u.setLoginToken(ctx, user.Id); err != nil {
+	if err = u.SetLoginToken(ctx, user.Id); err != nil {
 		ctx.JSON(http.StatusOK, &Result{
 			Code: 5,
 			Msg:  "系统异常",
@@ -334,10 +335,10 @@ func (u *UserHandle) Edit(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	tokenStr := ExtractToken(ctx)
-	claims := &UserClaims{}
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return u.atKey, nil
+	tokenStr := u.ExtractToken(ctx)
+	var claims ijwt.UserClaims
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
 	})
 	if err != nil || !token.Valid {
 		ctx.JSON(http.StatusOK, &Result{
@@ -371,10 +372,10 @@ func (u *UserHandle) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandle) Profile(ctx *gin.Context) {
-	claims := &UserClaims{}
-	tokenStr := ExtractToken(ctx)
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return u.atKey, nil
+	var claims ijwt.UserClaims
+	tokenStr := u.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
 	})
 	if err != nil || !token.Valid {
 		ctx.JSON(http.StatusOK, &Result{
@@ -410,10 +411,10 @@ func (u *UserHandle) Logout(ctx *gin.Context) {
 	// 清除token
 	ctx.Header("x-jwt-token", "")
 	ctx.Header("x-refresh-token", "")
-	tokenStr := ExtractToken(ctx)
-	var claims UserClaims
+	tokenStr := u.ExtractToken(ctx)
+	var claims ijwt.UserClaims
 	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
-		return u.atKey, nil
+		return ijwt.AtKey, nil
 	})
 	if err != nil || !token.Valid {
 		ctx.AbortWithStatus(http.StatusUnauthorized)

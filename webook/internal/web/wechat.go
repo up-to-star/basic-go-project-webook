@@ -3,6 +3,7 @@ package web
 import (
 	"basic-project/webook/internal/service"
 	"basic-project/webook/internal/service/oauth2/wechat"
+	ijwt "basic-project/webook/internal/web/jwt"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -13,17 +14,18 @@ import (
 )
 
 type OAuth2WechatHandler struct {
-	jwtHandler
+	ijwt.Handler
 	svc      wechat.Service
 	userSvc  service.UserService
 	stateKey []byte
 }
 
-func NewOAuth2WechatHandler(svc wechat.Service, userSvc service.UserService) *OAuth2WechatHandler {
+func NewOAuth2WechatHandler(svc wechat.Service, userSvc service.UserService, jwtHdl ijwt.Handler) *OAuth2WechatHandler {
 	return &OAuth2WechatHandler{
 		svc:      svc,
 		userSvc:  userSvc,
 		stateKey: []byte("BTv_D7]5q+f)9MTLwAA'5N!PJ6d6PNQ1"),
+		Handler:  jwtHdl,
 	}
 }
 
@@ -103,7 +105,7 @@ func (h *OAuth2WechatHandler) Callback(ctx *gin.Context) {
 		// 记录日志
 		return
 	}
-	err = h.setLoginToken(ctx, user.Id)
+	err = h.SetLoginToken(ctx, user.Id)
 	if err != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,

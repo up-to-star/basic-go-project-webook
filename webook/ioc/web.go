@@ -4,6 +4,7 @@ import (
 	"basic-project/webook/internal/pkg/ginx/middlewares/ratelimit"
 	ratelimit2 "basic-project/webook/internal/pkg/ratelimit"
 	"basic-project/webook/internal/web"
+	ijwt "basic-project/webook/internal/web/jwt"
 	"basic-project/webook/internal/web/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-func InitGinMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
+func InitGinMiddlewares(redisClient redis.Cmdable, jwtHdl ijwt.Handler) []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		cors.New(cors.Config{
 			//AllowOrigins: []string{"http://localhost:3000"},
@@ -30,7 +31,7 @@ func InitGinMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			MaxAge: 12 * time.Hour,
 		}),
 		ratelimit.NewBuilder(ratelimit2.NewRedisSlideWindowLimiter(redisClient, time.Second, 100)).Build(),
-		middleware.NewLoginJWTMiddleWareBuilder().
+		middleware.NewLoginJWTMiddleWareBuilder(jwtHdl).
 			IgnorePaths("/users/login").
 			IgnorePaths("/users/signup").
 			IgnorePaths("/users/login_sms/code/send").
