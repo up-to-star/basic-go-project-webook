@@ -1,11 +1,10 @@
 package main
 
 import (
-	"basic-project/webook/config"
-	"basic-project/webook/internal/repository/dao"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 	"net/http"
 )
 
@@ -17,6 +16,8 @@ func main() {
 	//u := initUser(db, redisClient)
 	//server := initWebServer(redisClient)
 	//u.RegisterRoutes(server)
+	//initViper()
+	initViperRemote()
 	server := InitWebServer()
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello world")
@@ -24,65 +25,27 @@ func main() {
 	_ = server.Run(":8080")
 }
 
-//func initWebServer(redisClient rds.Cmdable) *gin.Engine {
-//	server := gin.Default()
-//	server.Use(cors.New(cors.Config{
-//		//AllowOrigins: []string{"http://localhost:3000"},
-//		//AllowMethods: []string{"PUT", "PATCH", "POST"},
-//		AllowHeaders:  []string{"Content-Type", "Authorization"},
-//		ExposeHeaders: []string{"x-jwt-token"},
-//		// 是否允许带 cookie 之类的东西
-//		AllowCredentials: true,
-//		AllowOriginFunc: func(origin string) bool {
-//			if strings.Contains(origin, "http://localhost") {
-//				return true
-//			}
-//			return strings.Contains(origin, "www.xxx.com")
-//		},
-//		MaxAge: 12 * time.Hour,
-//	}))
-//	//store := memstore.NewStore([]byte("aIAcX#$8TT}.J+fE}Oa%l6{|-h{oo4)k"), []byte("ll1K9(4lACcUKN5'G};Ug5l*u>.,][_c"))
-//	store, err := redis.NewStore(16, "tcp", "localhost:6380", "",
-//		[]byte("aIAcX#$8TT}.J+fE}Oa%l6{|-h{oo4)k"), []byte("ll1K9(4lACcUKN5'G};Ug5l*u>.,][_c"))
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	// 基于redis的限流
-//	server.Use(ratelimit.NewBuilder(ratelimit2.NewRedisSlideWindowLimiter(redisClient, time.Second, 100)).Build())
-//	server.Use(sessions.Sessions("mysession", store))
-//	//server.Use(middleware.NewLoginMiddleWareBuilder().
-//	//	IgnorePaths("/users/login").
-//	//	IgnorePaths("/users/signup").Build())
-//	server.Use(middleware.NewLoginJWTMiddleWareBuilder().
-//		IgnorePaths("/users/login").
-//		IgnorePaths("/users/signup").
-//		IgnorePaths("/users/login_sms/code/send").
-//		IgnorePaths("/users/login_sms").Build())
-//	return server
-//}
-
-func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
+func initViper() {
+	viper.SetDefault("db.mysql.dsn",
+		"root:root@tcp(localhost:13316)/webook?charset=utf8mb4&parseTime=True&loc=Local")
+	viper.SetConfigName("dev")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("./webook/config")
+	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("viper 启动失败: %s \n", err))
 	}
-	err = dao.InitTable(db)
-	if err != nil {
-		panic(err)
-	}
-	return db
 }
 
-//func initUser(db *gorm.DB, c rds.Cmdable) *web.UserHandle {
-//	ud := dao.NewUserDAO(db)
-//	uc := cache.NewUserCache(c)
-//	repo := repository.NewUserRepository(ud, uc)
-//	svc := service.NewUserService(repo)
-//	codeCache := cache.NewCodeCache(c)
-//	codeRepo := repository.NewCodeRepository(codeCache)
-//	smsSvc := memory.NewService()
-//	codeSvc := service.NewCodeService(codeRepo, smsSvc)
-//	u := web.NewUserHandle(svc, codeSvc)
-//	return u
-//}
+func initViperRemote() {
+	err := viper.AddRemoteProvider("etcd3",
+		"http://localhost:12379", "/webook")
+	if err != nil {
+		panic(err)
+	}
+	viper.SetConfigType("yaml")
+	err = viper.ReadRemoteConfig()
+	if err != nil {
+		panic(err)
+	}
+}
