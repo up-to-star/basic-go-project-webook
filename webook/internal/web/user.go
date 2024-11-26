@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -241,6 +242,7 @@ func (u *UserHandle) Signup(ctx *gin.Context) {
 	})
 	if errors.Is(err, service.ErrUserDuplicateEmail) {
 		ctx.String(http.StatusOK, "邮箱冲突")
+		zap.L().Error("邮箱冲突", zap.Error(err))
 		return
 	}
 	if err != nil {

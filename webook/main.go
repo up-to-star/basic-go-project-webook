@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -16,13 +17,22 @@ func main() {
 	//u := initUser(db, redisClient)
 	//server := initWebServer(redisClient)
 	//u.RegisterRoutes(server)
-	//initViper()
-	initViperRemote()
+	initViper()
+	//initViperRemote()
+	initZap()
 	server := InitWebServer()
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello world")
 	})
 	_ = server.Run(":8080")
+}
+
+func initZap() {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
+	}
+	zap.ReplaceGlobals(logger)
 }
 
 func initViper() {
