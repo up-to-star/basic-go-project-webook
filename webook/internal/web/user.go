@@ -95,6 +95,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		zap.L().Error("绑定错误", zap.Error(err))
 		return
 	}
 
@@ -104,6 +105,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		zap.L().Error("手机号码匹配异常", zap.Error(err))
 		return
 	}
 	if !ok {
@@ -111,6 +113,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 4,
 			Msg:  "手机号输入错误",
 		})
+		zap.L().Error("手机号输入错误", zap.Error(err))
 		return
 	}
 	ok, err = u.codeSvc.Verify(ctx, biz, req.Phone, req.Code)
@@ -119,6 +122,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		zap.L().Error("验证码校验异常", zap.Error(err))
 		return
 	}
 	if !ok {
@@ -126,6 +130,7 @@ func (u *UserHandle) LoginSMS(ctx *gin.Context) {
 			Code: 4,
 			Msg:  "验证码有误",
 		})
+		zap.L().Error("验证码有误", zap.Error(err))
 		return
 	}
 
