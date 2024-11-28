@@ -3,8 +3,10 @@ package ioc
 import (
 	"basic-project/webook/internal/repository/dao"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"moul.io/zapgorm2"
 )
 
 func InitDB() *gorm.DB {
@@ -16,7 +18,11 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
-	db, err := gorm.Open(mysql.Open(cfg.DSN))
+	logger := zapgorm2.New(zap.L())
+	logger.SetAsDefault()
+	db, err := gorm.Open(mysql.Open(cfg.DSN), &gorm.Config{
+		Logger: logger,
+	})
 	if err != nil {
 		panic(err)
 	}

@@ -5,7 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -30,14 +30,14 @@ func (b *Builder) Build() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		limited, err := b.limit(ctx)
 		if err != nil {
-			log.Println(err)
+			zap.L().Error("限流出错", zap.Error(err))
 			// 这一步很有意思，就是如果这边出错了
 			// 要怎么办？
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		if limited {
-			log.Println(err)
+			zap.L().Warn("触发限流", zap.String("prefix", b.prefix))
 			ctx.AbortWithStatus(http.StatusTooManyRequests)
 			return
 		}

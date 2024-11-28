@@ -132,3 +132,8 @@ go jwt 使用参考: https://learnku.com/articles/85927, https://github.com/gola
 
 ### 远程配置中心 etcd
 
+## 日志模块
+### gorm 接入日志模块
+视频里那个不会弄，用了`zapgorm2`: https://github.com/moul/zapgorm2
+
+
