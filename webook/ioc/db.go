@@ -32,3 +32,19 @@ func InitDB() *gorm.DB {
 	}
 	return db
 }
+
+func InitDBDefault() *gorm.DB {
+	logger := zapgorm2.New(zap.L())
+	logger.SetAsDefault()
+	db, err := gorm.Open(mysql.Open("root:root@tcp(localhost:13316)/webook?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{
+		Logger: logger,
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = dao.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
+	return db
+}

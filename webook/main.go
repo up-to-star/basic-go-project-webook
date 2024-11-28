@@ -10,15 +10,9 @@ import (
 )
 
 func main() {
-	//db := initDB()
-	//redisClient := rds.NewClient(&rds.Options{
-	//	Addr: config.Config.Redis.Addr,
-	//})
-	//u := initUser(db, redisClient)
-	//server := initWebServer(redisClient)
-	//u.RegisterRoutes(server)
+
 	initViper()
-	//initViperRemote()
+
 	initZap()
 	server := InitWebServer()
 	server.GET("/hello", func(ctx *gin.Context) {

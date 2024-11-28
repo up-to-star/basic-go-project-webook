@@ -389,6 +389,7 @@ func (u *UserHandle) Profile(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		return
 	}
 	user, err := u.svc.Profile(ctx, claims.Uid)
 	if err != nil {
@@ -396,6 +397,7 @@ func (u *UserHandle) Profile(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统异常",
 		})
+		return
 	}
 
 	type ProfileData struct {

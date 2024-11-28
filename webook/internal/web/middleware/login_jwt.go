@@ -55,5 +55,6 @@ func (l *LoginJWTMiddleWareBuilder) Build() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+		ctx.Set("claims", &claims)
 	}
 }

@@ -41,6 +41,7 @@ func InitGinMiddlewares(redisClient redis.Cmdable, jwtHdl ijwt.Handler) []gin.Ha
 			IgnorePaths("/oauth2/wechat/authurl").
 			IgnorePaths("/oauth2/wechat/callback").
 			IgnorePaths("/users/refresh_token").
+			IgnorePaths("/articles/edit").
 			IgnorePaths("/users/login_sms").Build(),
 		logger.NewBuilder(func(ctx context.Context, al *logger.AccessLog) {
 			zap.L().Debug("HTTP请求", zap.Any("AccessLog", al))
@@ -49,10 +50,11 @@ func InitGinMiddlewares(redisClient redis.Cmdable, jwtHdl ijwt.Handler) []gin.Ha
 }
 
 func InitWebserver(mdls []gin.HandlerFunc, userHdl *web.UserHandle,
-	oauth2WechatHandler *web.OAuth2WechatHandler) *gin.Engine {
+	oauth2WechatHandler *web.OAuth2WechatHandler, artHdl *web.ArticleHandle) *gin.Engine {
 	server := gin.Default()
 	server.Use(mdls...)
 	userHdl.RegisterRoutes(server)
 	oauth2WechatHandler.RegisterRoutes(server)
+	artHdl.RegisterRoutes(server)
 	return server
 }
