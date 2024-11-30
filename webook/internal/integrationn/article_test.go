@@ -30,11 +30,11 @@ func (s *ArticleTestSuite) SetupTest() {
 	s.db = ioc.InitDBDefault()
 }
 
-// 每一个测试都会执行
-func (s *ArticleTestSuite) TearDownTest() {
-	// 清空所有数据, 并且自增组件恢复到1
-	s.db.Exec("TRUNCATE TABLE articles")
-}
+//// 每一个测试都会执行
+//func (s *ArticleTestSuite) TearDownTest() {
+//	// 清空所有数据, 并且自增组件恢复到1
+//	s.db.Exec("TRUNCATE TABLE articles")
+//}
 
 func (s *ArticleTestSuite) TestABC() {
 	s.T().Log("hello world")
@@ -76,6 +76,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					Ctime:    0,
 					Utime:    0,
 				}, art)
+				s.db.Exec("TRUNCATE TABLE articles")
 			},
 			art: Article{
 				Title:   "test",
@@ -92,7 +93,7 @@ func (s *ArticleTestSuite) TestEdit() {
 			name:  "修改已有的帖子，并保存",
 			token: generateToken(123),
 			before: func(t *testing.T) {
-				err := s.db.Create(&dao.Article{
+				err := s.db.Create(dao.Article{
 					Id:       2,
 					Title:    "test",
 					Content:  "hello world",
@@ -110,15 +111,17 @@ func (s *ArticleTestSuite) TestEdit() {
 				assert.True(t, art.Utime > 234)
 				art.Utime = 0
 				assert.Equal(t, dao.Article{
-					Id:       1,
+					Id:       2,
 					Title:    "新的标题",
 					Content:  "新的内容",
 					AuthorId: 123,
 					Ctime:    123,
 					Utime:    0,
 				}, art)
+				s.db.Exec("TRUNCATE TABLE articles")
 			},
 			art: Article{
+				Id:      2,
 				Title:   "新的标题",
 				Content: "新的内容",
 			},
@@ -127,6 +130,47 @@ func (s *ArticleTestSuite) TestEdit() {
 				Code: 0,
 				Msg:  "OK",
 				Data: 2,
+			},
+		},
+		{
+			name:  "修改别人的帖子",
+			token: generateToken(123),
+			before: func(t *testing.T) {
+				err := s.db.Create(dao.Article{
+					Id:       3,
+					Title:    "test",
+					Content:  "hello world",
+					AuthorId: 789, // 在修改别人的数据
+					Ctime:    123,
+					Utime:    234,
+				}).Error
+				assert.NoError(t, err)
+			},
+			after: func(t *testing.T) {
+				// 验证数据库
+				var art dao.Article
+				err := s.db.Where("id = ?", 3).First(&art).Error
+				assert.NoError(t, err)
+				assert.Equal(t, dao.Article{
+					Id:       3,
+					Title:    "test",
+					Content:  "hello world",
+					AuthorId: 789,
+					Ctime:    123,
+					Utime:    234,
+				}, art)
+				s.db.Exec("TRUNCATE TABLE articles")
+			},
+			art: Article{
+				Id:      3,
+				Title:   "新的标题",
+				Content: "新的内容",
+			},
+			wantCode: http.StatusOK,
+			wantRes: Result[int64]{
+				Code: 0,
+				Msg:  "系统错误",
+				Data: 0,
 			},
 		},
 	}
@@ -162,6 +206,7 @@ func TestArticle(t *testing.T) {
 }
 
 type Article struct {
+	Id      int64  `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }

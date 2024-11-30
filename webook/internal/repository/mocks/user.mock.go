@@ -25,6 +25,11 @@ type MockUserRepository struct {
 	isgomock struct{}
 }
 
+func (m *MockUserRepository) FindByWechat(ctx *gin.Context, openId string) (domain.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // MockUserRepositoryMockRecorder is the mock recorder for MockUserRepository.
 type MockUserRepositoryMockRecorder struct {
 	mock *MockUserRepository
