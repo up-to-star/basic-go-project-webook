@@ -4,8 +4,10 @@ package main
 
 import (
 	"basic-project/webook/internal/repository"
+	"basic-project/webook/internal/repository/article"
 	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
+	article2 "basic-project/webook/internal/repository/dao/article"
 	"basic-project/webook/internal/service"
 	"basic-project/webook/internal/web"
 	ijwt "basic-project/webook/internal/web/jwt"
@@ -20,12 +22,12 @@ func InitWebServer() *gin.Engine {
 		ioc.InitDB, ioc.InitRedis,
 		// dao 部分
 		dao.NewUserDAO,
-		dao.NewArticleDAO,
+		article2.NewArticleDAO,
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,
-		repository.NewArticleRepository,
+		article.NewArticleRepository,
 		// service 部分
 		ioc.InitSMSService,
 		service.NewUserService,

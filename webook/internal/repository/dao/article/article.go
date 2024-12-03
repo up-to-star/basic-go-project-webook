@@ -1,15 +1,17 @@
-package dao
+package article
 
 import (
 	"context"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 )
 
 type ArticleDAO interface {
 	Insert(ctx context.Context, art Article) (int64, error)
 	UpdateById(ctx context.Context, art Article) error
+	Sync(ctx context.Context, art Article) (int64, error)
 }
 
 type GORMArticleDAO struct {
@@ -20,6 +22,38 @@ func NewArticleDAO(db *gorm.DB) ArticleDAO {
 	return &GORMArticleDAO{
 		db: db,
 	}
+}
+
+func (dao *GORMArticleDAO) Sync(ctx context.Context, art Article) (int64, error) {
+	var id = art.Id
+	err := dao.db.Transaction(func(tx *gorm.DB) error {
+		var err error
+		daoTX := NewArticleDAO(tx)
+		if id > 0 {
+			err = daoTX.UpdateById(ctx, art)
+		} else {
+			id, err = dao.Insert(ctx, art)
+		}
+		if err != nil {
+			return err
+		}
+		art.Id = id
+		now := time.Now().UnixMilli()
+		pubArt := PublishedArticle{art}
+		pubArt.Utime = now
+		pubArt.Ctime = now
+
+		err = tx.Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "id"}},
+			DoUpdates: clause.Assignments(map[string]interface{}{
+				"title":   pubArt.Title,
+				"content": pubArt.Content,
+				"utime":   pubArt.Utime,
+			}),
+		}).Create(&pubArt).Error
+		return err
+	})
+	return id, err
 }
 
 func (dao *GORMArticleDAO) Insert(ctx context.Context, art Article) (int64, error) {
@@ -40,7 +74,7 @@ func (dao *GORMArticleDAO) UpdateById(ctx context.Context, art Article) error {
 		"utime":   art.Utime,
 	})
 	if res.RowsAffected == 0 {
-		return fmt.Errorf("更新失败, 肯能创作者非法, id: %d, author_id: %d", art.Id, art.AuthorId)
+		return fmt.Errorf("更新失败, 可能创作者非法, id: %d, author_id: %d", art.Id, art.AuthorId)
 	}
 	return res.Error
 }
@@ -55,4 +89,8 @@ type Article struct {
 	//Ctime    int64  `gorm:"index:aid_ctime"`
 	Ctime int64
 	Utime int64
+}
+
+type PublishedArticle struct {
+	Article
 }

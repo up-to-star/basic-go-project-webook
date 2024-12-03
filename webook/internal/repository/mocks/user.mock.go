@@ -25,11 +25,6 @@ type MockUserRepository struct {
 	isgomock struct{}
 }
 
-func (m *MockUserRepository) FindByWechat(ctx *gin.Context, openId string) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 // MockUserRepositoryMockRecorder is the mock recorder for MockUserRepository.
 type MockUserRepositoryMockRecorder struct {
 	mock *MockUserRepository
@@ -104,6 +99,21 @@ func (m *MockUserRepository) FindByPhone(ctx context.Context, phone string) (dom
 func (mr *MockUserRepositoryMockRecorder) FindByPhone(ctx, phone any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockUserRepository)(nil).FindByPhone), ctx, phone)
+}
+
+// FindByWechat mocks base method.
+func (m *MockUserRepository) FindByWechat(ctx *gin.Context, openId string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByWechat", ctx, openId)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByWechat indicates an expected call of FindByWechat.
+func (mr *MockUserRepositoryMockRecorder) FindByWechat(ctx, openId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByWechat", reflect.TypeOf((*MockUserRepository)(nil).FindByWechat), ctx, openId)
 }
 
 // UpdateById mocks base method.

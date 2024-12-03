@@ -2,7 +2,7 @@ package integrationn
 
 import (
 	"basic-project/webook/internal/integrationn/startup"
-	"basic-project/webook/internal/repository/dao"
+	"basic-project/webook/internal/repository/dao/article"
 	ijwt "basic-project/webook/internal/web/jwt"
 	"basic-project/webook/ioc"
 	"bytes"
@@ -61,14 +61,14 @@ func (s *ArticleTestSuite) TestEdit() {
 			},
 			after: func(t *testing.T) {
 				// 验证数据库
-				var art dao.Article
+				var art article.Article
 				err := s.db.Where("id = ?", 1).First(&art).Error
 				assert.NoError(t, err)
 				assert.True(t, art.Ctime > 0)
 				assert.True(t, art.Utime > 0)
 				art.Ctime = 0
 				art.Utime = 0
-				assert.Equal(t, dao.Article{
+				assert.Equal(t, article.Article{
 					Id:       1,
 					Title:    "test",
 					Content:  "hello world",
@@ -93,7 +93,7 @@ func (s *ArticleTestSuite) TestEdit() {
 			name:  "修改已有的帖子，并保存",
 			token: generateToken(123),
 			before: func(t *testing.T) {
-				err := s.db.Create(dao.Article{
+				err := s.db.Create(article.Article{
 					Id:       2,
 					Title:    "test",
 					Content:  "hello world",
@@ -105,12 +105,12 @@ func (s *ArticleTestSuite) TestEdit() {
 			},
 			after: func(t *testing.T) {
 				// 验证数据库
-				var art dao.Article
+				var art article.Article
 				err := s.db.Where("id = ?", 2).First(&art).Error
 				assert.NoError(t, err)
 				assert.True(t, art.Utime > 234)
 				art.Utime = 0
-				assert.Equal(t, dao.Article{
+				assert.Equal(t, article.Article{
 					Id:       2,
 					Title:    "新的标题",
 					Content:  "新的内容",
@@ -136,7 +136,7 @@ func (s *ArticleTestSuite) TestEdit() {
 			name:  "修改别人的帖子",
 			token: generateToken(123),
 			before: func(t *testing.T) {
-				err := s.db.Create(dao.Article{
+				err := s.db.Create(article.Article{
 					Id:       3,
 					Title:    "test",
 					Content:  "hello world",
@@ -148,10 +148,10 @@ func (s *ArticleTestSuite) TestEdit() {
 			},
 			after: func(t *testing.T) {
 				// 验证数据库
-				var art dao.Article
+				var art article.Article
 				err := s.db.Where("id = ?", 3).First(&art).Error
 				assert.NoError(t, err)
-				assert.Equal(t, dao.Article{
+				assert.Equal(t, article.Article{
 					Id:       3,
 					Title:    "test",
 					Content:  "hello world",
