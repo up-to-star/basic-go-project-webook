@@ -1,6 +1,7 @@
 package integrationn
 
 import (
+	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/integrationn/startup"
 	"basic-project/webook/internal/repository/dao/article"
 	ijwt "basic-project/webook/internal/web/jwt"
@@ -75,6 +76,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					AuthorId: 123,
 					Ctime:    0,
 					Utime:    0,
+					Status:   domain.ArticleStatusUnpublished.ToUint8(),
 				}, art)
 				s.db.Exec("TRUNCATE TABLE articles")
 			},
@@ -100,6 +102,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					AuthorId: 123,
 					Ctime:    123,
 					Utime:    234,
+					Status:   domain.ArticleStatusUnpublished.ToUint8(),
 				}).Error
 				assert.NoError(t, err)
 			},
@@ -117,6 +120,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					AuthorId: 123,
 					Ctime:    123,
 					Utime:    0,
+					Status:   domain.ArticleStatusUnpublished.ToUint8(),
 				}, art)
 				s.db.Exec("TRUNCATE TABLE articles")
 			},
@@ -143,6 +147,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					AuthorId: 789, // 在修改别人的数据
 					Ctime:    123,
 					Utime:    234,
+					Status:   domain.ArticleStatusPublished.ToUint8(),
 				}).Error
 				assert.NoError(t, err)
 			},
@@ -158,6 +163,7 @@ func (s *ArticleTestSuite) TestEdit() {
 					AuthorId: 789,
 					Ctime:    123,
 					Utime:    234,
+					Status:   domain.ArticleStatusPublished.ToUint8(),
 				}, art)
 				s.db.Exec("TRUNCATE TABLE articles")
 			},
@@ -168,7 +174,7 @@ func (s *ArticleTestSuite) TestEdit() {
 			},
 			wantCode: http.StatusOK,
 			wantRes: Result[int64]{
-				Code: 0,
+				Code: 5,
 				Msg:  "系统错误",
 				Data: 0,
 			},

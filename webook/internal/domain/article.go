@@ -9,6 +9,41 @@ type Article struct {
 	Author  Author
 	Ctime   time.Time
 	Utime   time.Time
+	Status  ArticleStatus
+}
+
+type ArticleStatus uint8
+
+const (
+	ArticleStatusUnknown ArticleStatus = iota
+	ArticleStatusUnpublished
+	ArticleStatusPublished
+	ArticleStatusPrivate
+)
+
+func (s ArticleStatus) ToUint8() uint8 {
+	return uint8(s)
+}
+
+func (s ArticleStatus) NonPublished() bool {
+	return s != ArticleStatusPublished
+}
+
+func (s ArticleStatus) Valid() bool {
+	return s.ToUint8() > 0
+}
+
+func (s ArticleStatus) String() string {
+	switch s {
+	case ArticleStatusUnpublished:
+		return "Unpublished"
+	case ArticleStatusPublished:
+		return "Published"
+	case ArticleStatusPrivate:
+		return "Private"
+	default:
+		return "Unknown"
+	}
 }
 
 type Author struct {

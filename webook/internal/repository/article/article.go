@@ -4,6 +4,7 @@ import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/repository/dao/article"
 	"context"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -11,6 +12,7 @@ type ArticleRepository interface {
 	Create(ctx context.Context, art domain.Article) (int64, error)
 	Update(ctx context.Context, art domain.Article) error
 	Sync(ctx context.Context, art domain.Article) (int64, error)
+	SyncStatus(ctx *gin.Context, id int64, authorId int64, status domain.ArticleStatus) error
 }
 
 type CachedArticleRepository struct {
@@ -21,6 +23,10 @@ func NewArticleRepository(dao article.ArticleDAO) ArticleRepository {
 	return &CachedArticleRepository{
 		dao: dao,
 	}
+}
+
+func (c *CachedArticleRepository) SyncStatus(ctx *gin.Context, id int64, authorId int64, status domain.ArticleStatus) error {
+	return c.dao.SyncStatus(ctx, id, authorId, status.ToUint8())
 }
 
 func (c *CachedArticleRepository) Create(ctx context.Context, art domain.Article) (int64, error) {
@@ -41,6 +47,7 @@ func toArticleEntity(art domain.Article) article.Article {
 		Title:    art.Title,
 		Content:  art.Content,
 		AuthorId: art.Author.Id,
+		Status:   art.Status.ToUint8(),
 	}
 }
 
@@ -52,8 +59,9 @@ func toDomain(art article.Article) domain.Article {
 		Author: domain.Author{
 			Id: art.AuthorId,
 		},
-		Ctime: time.UnixMilli(art.Ctime),
-		Utime: time.UnixMilli(art.Utime),
+		Ctime:  time.UnixMilli(art.Ctime),
+		Utime:  time.UnixMilli(art.Utime),
+		Status: domain.ArticleStatus(art.Status),
 	}
 }
 

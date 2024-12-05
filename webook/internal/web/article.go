@@ -26,6 +26,55 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 	g := server.Group("/articles")
 	g.POST("/edit", h.Edit)
 	g.POST("/publish", h.Publish)
+	g.POST("/withdraw", h.Withdraw)
+}
+
+func (h *ArticleHandle) Withdraw(ctx *gin.Context) {
+	type Req struct {
+		Id int64 `json:"id"`
+	}
+
+	var req Req
+	err := ctx.Bind(&req)
+	if err != nil {
+		zap.L().Error("article withdraw bind 失败", zap.Error(err))
+		return
+	}
+
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("未发现用户信息，用户未登录", zap.Error(err))
+		return
+	}
+
+	err = h.svc.Withdraw(ctx, domain.Article{
+		Id: req.Id,
+		Author: domain.Author{
+			Id: claims.Uid,
+		},
+	})
+	if err != nil {
+		zap.L().Error("文章保存或更新出错", zap.Error(err))
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "OK",
+		Data: req.Id,
+	})
+
 }
 
 func (h *ArticleHandle) Publish(ctx *gin.Context) {

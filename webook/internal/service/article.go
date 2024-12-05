@@ -5,6 +5,7 @@ import (
 	"basic-project/webook/internal/repository/article"
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -12,6 +13,7 @@ type ArticleService interface {
 	Save(ctx context.Context, art domain.Article) (int64, error)
 	Publish(ctx context.Context, art domain.Article) (int64, error)
 	PublishV1(ctx context.Context, art domain.Article) (int64, error)
+	Withdraw(ctx *gin.Context, art domain.Article) error
 }
 
 type articleService struct {
@@ -28,7 +30,11 @@ func NewArticleService(repo article.ArticleRepository) ArticleService {
 	}
 }
 
+func (a *articleService) Withdraw(ctx *gin.Context, art domain.Article) error {
+	return a.repo.SyncStatus(ctx, art.Id, art.Author.Id, domain.ArticleStatusPrivate)
+}
 func (a *articleService) Publish(ctx context.Context, art domain.Article) (int64, error) {
+	art.Status = domain.ArticleStatusPublished
 	return a.repo.Sync(ctx, art)
 }
 
@@ -59,6 +65,7 @@ func (a *articleService) PublishV1(ctx context.Context, art domain.Article) (int
 }
 
 func (a *articleService) Save(ctx context.Context, art domain.Article) (int64, error) {
+	art.Status = domain.ArticleStatusUnpublished
 	if art.Id > 0 {
 		err := a.repo.Update(ctx, art)
 		return art.Id, err
