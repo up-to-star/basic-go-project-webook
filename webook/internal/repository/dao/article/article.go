@@ -103,6 +103,7 @@ func (dao *GORMArticleDAO) UpdateById(ctx context.Context, art Article) error {
 		"title":   art.Title,
 		"content": art.Content,
 		"utime":   art.Utime,
+		"status":  art.Status,
 	})
 	if res.RowsAffected == 0 {
 		return fmt.Errorf("更新失败, 可能创作者非法, id: %d, author_id: %d", art.Id, art.AuthorId)
@@ -123,6 +124,7 @@ type Article struct {
 	Status uint8
 }
 
+// PublishedArticle 线上库
 type PublishedArticle struct {
 	Article
 }
