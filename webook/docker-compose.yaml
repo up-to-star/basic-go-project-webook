@@ -22,3 +22,16 @@ services:
       - ALLOW_NONE_AUTHENTICATION=yes
     ports:
       - 12379:2379
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - /home/cyj/docker-volumes/mongo/data/db:/data/db
+      - /home/cyj/docker-volumes/mongo/data/log:/var/log/mongodb
+      - /home/cyj/docker-volumes/mongo/data/config:/etc/mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
