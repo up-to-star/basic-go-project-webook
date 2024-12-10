@@ -27,6 +27,11 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 	g.POST("/edit", h.Edit)
 	g.POST("/publish", h.Publish)
 	g.POST("/withdraw", h.Withdraw)
+	g.POST("/list", h.List)
+}
+
+func (h *ArticleHandle) List(ctx *gin.Context) {
+	ctx.String(http.StatusOK, ctx.ClientIP())
 }
 
 func (h *ArticleHandle) Withdraw(ctx *gin.Context) {

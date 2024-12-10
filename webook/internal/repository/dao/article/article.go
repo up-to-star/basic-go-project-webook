@@ -113,15 +113,15 @@ func (dao *GORMArticleDAO) UpdateById(ctx context.Context, art Article) error {
 
 // Article 制作库
 type Article struct {
-	Id       int64  `gorm:"primaryKey;autoIncrement"`
-	Title    string `gorm:"type:varchar(1024)"`
-	Content  string `gorm:"type:BLOB"`
-	AuthorId int64  `gorm:"index"`
+	Id       int64  `gorm:"primaryKey;autoIncrement" bson:"id,omitempty"`
+	Title    string `gorm:"type:varchar(1024)" bson:"title,omitempty"`
+	Content  string `gorm:"type:BLOB" bson:"content,omitempty"`
+	AuthorId int64  `gorm:"index" bson:"author_id,omitempty"`
 	//AuthorId int64  `gorm:"index:aid_ctime"`
 	//Ctime    int64  `gorm:"index:aid_ctime"`
-	Ctime  int64
-	Utime  int64
-	Status uint8
+	Ctime  int64 `bson:"ctime,omitempty"`
+	Utime  int64 `bson:"utime,omitempty"`
+	Status uint8 `bson:"status,omitempty"`
 }
 
 // PublishedArticle 线上库

@@ -3,64 +3,87 @@ package dao
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-sql-driver/mysql"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	gormMysql "gorm.io/driver/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"testing"
 )
 
 func TestGORMUserDAO_Insert(t *testing.T) {
 	testCases := []struct {
-		name    string
-		user    User
-		mock    func(t *testing.T) *sql.DB
+		name string
+		mock func(t *testing.T) *sql.DB
+		ctx  context.Context
+		user User
+
 		wantErr error
 	}{
 		{
 			name: "插入成功",
 			mock: func(t *testing.T) *sql.DB {
-				mockDB, mock, err := sqlmock.New()
-				require.NoError(t, err)
-				res := sqlmock.NewResult(3, 1)
-				mock.ExpectExec("INSERT INTO `users` .*").WillReturnResult(res)
-				return mockDB
+				db, mock, err := sqlmock.New()
+				assert.NoError(t, err)
+				mockRes := sqlmock.NewResult(123, 1)
+				// 这边要求传入的是 sql 的正则表达式
+				mock.ExpectExec("INSERT INTO .*").
+					WillReturnResult(mockRes)
+				return db
 			},
+			ctx: context.Background(),
 			user: User{
-				Email: sql.NullString{
-					String: "test@example.com",
-					Valid:  true,
-				},
+				Nickname: "Tom",
 			},
 		},
 		{
 			name: "邮箱冲突",
 			mock: func(t *testing.T) *sql.DB {
-				mockDB, mock, err := sqlmock.New()
-				require.NoError(t, err)
-				mock.ExpectExec("INSERT INTO `users` .*").WillReturnError(&mysql.MySQLError{
-					Number: 1062,
-				})
-				return mockDB
+				db, mock, err := sqlmock.New()
+				assert.NoError(t, err)
+				// 这边要求传入的是 sql 的正则表达式
+				mock.ExpectExec("INSERT INTO .*").
+					WillReturnError(&mysqlDriver.MySQLError{Number: 1062})
+				return db
 			},
-			user:    User{},
+			ctx: context.Background(),
+			user: User{
+				Nickname: "Tom",
+			},
 			wantErr: ErrUserDuplicate,
+		},
+		{
+			name: "数据库错误",
+			mock: func(t *testing.T) *sql.DB {
+				db, mock, err := sqlmock.New()
+				assert.NoError(t, err)
+				// 这边要求传入的是 sql 的正则表达式
+				mock.ExpectExec("INSERT INTO .*").
+					WillReturnError(errors.New("数据库错误"))
+				return db
+			},
+			ctx: context.Background(),
+			user: User{
+				Nickname: "Tom",
+			},
+			wantErr: errors.New("数据库错误"),
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			db, err := gorm.Open(gormMysql.New(gormMysql.Config{
-				Conn:                      tc.mock(t),
+			sqlDB := tc.mock(t)
+			db, err := gorm.Open(mysql.New(mysql.Config{
+				Conn:                      sqlDB,
 				SkipInitializeWithVersion: true,
 			}), &gorm.Config{
 				DisableAutomaticPing:   true,
 				SkipDefaultTransaction: true,
 			})
-			d := NewUserDAO(db)
-			err = d.Insert(context.Background(), tc.user)
+			assert.NoError(t, err)
+			dao := NewUserDAO(db)
+			err = dao.Insert(tc.ctx, tc.user)
 			assert.Equal(t, tc.wantErr, err)
 		})
 	}
