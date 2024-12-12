@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 )
 
 type ArticleHandle struct {
@@ -28,6 +29,10 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 	g.POST("/publish", h.Publish)
 	g.POST("/withdraw", h.Withdraw)
 	g.POST("/list", h.List)
+	g.GET("/detail/:id", h.Detail)
+
+	pub := g.Group("/pub")
+	pub.GET("/:id", h.PubDetail)
 }
 
 func (h *ArticleHandle) List(ctx *gin.Context) {
@@ -188,6 +193,95 @@ func (h *ArticleHandle) Edit(ctx *gin.Context) {
 		Code: 0,
 		Msg:  "OK",
 		Data: artId,
+	})
+}
+
+func (h *ArticleHandle) Detail(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "参数错误",
+		})
+		zap.L().Warn("参数错误", zap.Error(err))
+		return
+	}
+	art, err := h.svc.GetById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("系统错误, 查询文章失败", zap.Error(err))
+		return
+	}
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid || claims.Uid != art.Author.Id {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("非法用户信息", zap.Error(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "OK",
+		Data: ArticleVO{
+			Id:         id,
+			Title:      art.Title,
+			Abstract:   art.Abstract(),
+			Content:    art.Content,
+			AuthorId:   art.Author.Id,
+			AuthorName: art.Author.Name,
+			Status:     art.Status.ToUint8(),
+			Ctime:      art.Ctime.Format("2006-01-02 15:04:05"),
+			Utime:      art.Utime.Format("2006-01-02 15:04:05"),
+		},
+	})
+}
+
+func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "id 参数错误",
+		})
+		zap.L().Warn("文章查询失败，id参数不对", zap.Error(err))
+		return
+	}
+
+	art, err := h.svc.GetPubById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("文章查询失败，系统错误", zap.Error(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "OK",
+		Data: ArticleVO{
+			Id:         id,
+			Title:      art.Title,
+			Abstract:   art.Abstract(),
+			Content:    art.Content,
+			AuthorId:   art.Author.Id,
+			AuthorName: art.Author.Name,
+			Status:     art.Status.ToUint8(),
+			Ctime:      art.Ctime.Format("2006-01-02 15:04:05"),
+			Utime:      art.Utime.Format("2006-01-02 15:04:05"),
+		},
 	})
 }
 

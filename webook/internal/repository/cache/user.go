@@ -12,7 +12,7 @@ import (
 
 var (
 	ErrUserNotFound = errors.New("user not found")
-	ErrKeyNotExists = errors.New("key not exists")
+	ErrKeyNotExists = errors.New("firstKey not exists")
 )
 
 type UserCache interface {

@@ -3,7 +3,6 @@ package article
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,8 +13,10 @@ type ArticleDAO interface {
 	Insert(ctx context.Context, art Article) (int64, error)
 	UpdateById(ctx context.Context, art Article) error
 	Sync(ctx context.Context, art Article) (int64, error)
-	SyncStatus(ctx *gin.Context, id int64, authorId int64, status uint8) error
-	GetByAuthor(ctx *gin.Context, uid int64, limit int, offset int) ([]Article, error)
+	SyncStatus(ctx context.Context, id int64, authorId int64, status uint8) error
+	GetByAuthor(ctx context.Context, uid int64, limit int, offset int) ([]Article, error)
+	GetById(ctx context.Context, id int64) (Article, error)
+	GetPubById(ctx context.Context, id int64) (PublishedArticle, error)
 }
 
 type GORMArticleDAO struct {
@@ -28,7 +29,25 @@ func NewArticleDAO(db *gorm.DB) ArticleDAO {
 	}
 }
 
-func (dao *GORMArticleDAO) GetByAuthor(ctx *gin.Context, uid int64, limit int, offset int) ([]Article, error) {
+func (dao *GORMArticleDAO) GetPubById(ctx context.Context, id int64) (PublishedArticle, error) {
+	var art PublishedArticle
+	err := dao.db.WithContext(ctx).Where("id = ?", id).First(&art).Error
+	if err != nil {
+		return PublishedArticle{}, err
+	}
+	return art, nil
+}
+
+func (dao *GORMArticleDAO) GetById(ctx context.Context, id int64) (Article, error) {
+	var art Article
+	err := dao.db.WithContext(ctx).Where("id = ?", id).First(&art).Error
+	if err != nil {
+		return Article{}, err
+	}
+	return art, nil
+}
+
+func (dao *GORMArticleDAO) GetByAuthor(ctx context.Context, uid int64, limit int, offset int) ([]Article, error) {
 	var arts []Article
 	err := dao.db.WithContext(ctx).Model(&Article{}).
 		Where("author_id = ?", uid).
@@ -39,7 +58,7 @@ func (dao *GORMArticleDAO) GetByAuthor(ctx *gin.Context, uid int64, limit int, o
 	return arts, err
 }
 
-func (dao *GORMArticleDAO) SyncStatus(ctx *gin.Context, id int64, authorId int64, status uint8) error {
+func (dao *GORMArticleDAO) SyncStatus(ctx context.Context, id int64, authorId int64, status uint8) error {
 	now := time.Now().UnixMilli()
 	err := dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		res := tx.Model(&Article{}).Where("id = ? AND author_id = ?", id, authorId).
