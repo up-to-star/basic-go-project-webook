@@ -12,6 +12,14 @@ type Article struct {
 	Status  ArticleStatus
 }
 
+func (a Article) Abstract() string {
+	content := []rune(a.Content)
+	if len(content) < 100 {
+		return string(content)
+	}
+	return string(content[:100])
+}
+
 type ArticleStatus uint8
 
 const (

@@ -17,6 +17,11 @@ type MongoDBArticleDAO struct {
 	liveCol *mongo.Collection
 }
 
+func (m *MongoDBArticleDAO) GetByAuthor(ctx *gin.Context, uid int64, limit int, offset int) ([]Article, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MongoDBArticleDAO) Insert(ctx context.Context, art Article) (int64, error) {
 	now := time.Now().UnixMilli()
 	art.Ctime = now

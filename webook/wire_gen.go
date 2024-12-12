@@ -8,10 +8,10 @@ package main
 
 import (
 	"basic-project/webook/internal/repository"
-	"basic-project/webook/internal/repository/article"
+	article2 "basic-project/webook/internal/repository/article"
 	"basic-project/webook/internal/repository/cache"
 	"basic-project/webook/internal/repository/dao"
-	article2 "basic-project/webook/internal/repository/dao/article"
+	"basic-project/webook/internal/repository/dao/article"
 	"basic-project/webook/internal/service"
 	"basic-project/webook/internal/web"
 	"basic-project/webook/internal/web/jwt"
@@ -41,8 +41,8 @@ func InitWebServer() *gin.Engine {
 	userHandle := web.NewUserHandle(userService, codeService, cmdable, handler)
 	wechatService := ioc.InitOAuth2WechatService()
 	oAuth2WechatHandler := web.NewOAuth2WechatHandler(wechatService, userService, handler)
-	articleDAO := article2.NewArticleDAO(db)
-	articleRepository := article.NewArticleRepository(articleDAO)
+	articleDAO := article.NewArticleDAO(db)
+	articleRepository := article2.NewArticleRepository(articleDAO)
 	articleService := service.NewArticleService(articleRepository)
 	articleHandle := web.NewArticleHandle(articleService, handler)
 	engine := ioc.InitWebserver(v, userHandle, oAuth2WechatHandler, articleHandle)

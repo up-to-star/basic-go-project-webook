@@ -31,7 +31,41 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 }
 
 func (h *ArticleHandle) List(ctx *gin.Context) {
-	ctx.String(http.StatusOK, ctx.ClientIP())
+	var req Page
+	err := ctx.Bind(&req)
+	if err != nil {
+		zap.L().Error("绑定出错", zap.Error(err))
+		return
+	}
+
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("未发现用户信息，用户未登录", zap.Error(err))
+		return
+	}
+
+	arts, err := h.svc.List(ctx, claims.Uid, req.Limit, req.Offset)
+	if err != nil {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("查找文章列表失败", zap.Error(err))
+	}
+	ctx.JSON(http.StatusOK, &Result{
+		Code: 0,
+		Msg:  "OK",
+		Data: toArticleVOs(arts),
+	})
+
 }
 
 func (h *ArticleHandle) Withdraw(ctx *gin.Context) {

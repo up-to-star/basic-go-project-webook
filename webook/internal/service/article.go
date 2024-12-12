@@ -14,6 +14,7 @@ type ArticleService interface {
 	Publish(ctx context.Context, art domain.Article) (int64, error)
 	PublishV1(ctx context.Context, art domain.Article) (int64, error)
 	Withdraw(ctx *gin.Context, art domain.Article) error
+	List(ctx *gin.Context, uid int64, limit int, offset int) ([]domain.Article, error)
 }
 
 type articleService struct {
@@ -28,6 +29,10 @@ func NewArticleService(repo article.ArticleRepository) ArticleService {
 	return &articleService{
 		repo: repo,
 	}
+}
+
+func (a *articleService) List(ctx *gin.Context, uid int64, limit int, offset int) ([]domain.Article, error) {
+	return a.repo.List(ctx, uid, limit, offset)
 }
 
 func (a *articleService) Withdraw(ctx *gin.Context, art domain.Article) error {
