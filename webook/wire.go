@@ -28,6 +28,7 @@ func InitWebServer() *gin.Engine {
 		//article2.NewMongoDBArticleDAO,
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
+		cache.NewRedisArticleCache,
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,
 		article.NewArticleRepository,
