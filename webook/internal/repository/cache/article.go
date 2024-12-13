@@ -18,10 +18,15 @@ type ArticleCache interface {
 	Set(ctx context.Context, art domain.Article) error
 	SetPub(ctx context.Context, art domain.Article) error
 	GetPub(ctx context.Context, id int64) (domain.Article, error)
+	Del(ctx context.Context, id int64) error
 }
 
 type RedisArticleCache struct {
 	client redis.Cmdable
+}
+
+func (r *RedisArticleCache) Del(ctx context.Context, id int64) error {
+	return r.client.Del(ctx, r.key(id)).Err()
 }
 
 func (r *RedisArticleCache) GetPub(ctx context.Context, id int64) (domain.Article, error) {

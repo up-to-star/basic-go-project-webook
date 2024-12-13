@@ -123,7 +123,11 @@ func (c *CachedArticleRepository) SyncStatus(ctx context.Context, id int64, auth
 	defer func() {
 		err := c.cache.DeleteFirstPage(ctx, authorId)
 		if err != nil {
-			zap.L().Error("删除文章缓存失败", zap.Int64("art.id", authorId), zap.Error(err))
+			zap.L().Warn("删除文章list缓存失败", zap.Int64("art.id", authorId), zap.Error(err))
+		}
+		err = c.cache.Del(ctx, id)
+		if err != nil {
+			zap.L().Warn("删除缓存文章失败", zap.Int64("art.id", authorId), zap.Error(err))
 		}
 	}()
 	return c.dao.SyncStatus(ctx, id, authorId, status.ToUint8())
@@ -143,7 +147,11 @@ func (c *CachedArticleRepository) Sync(ctx context.Context, art domain.Article) 
 	defer func() {
 		err := c.cache.DeleteFirstPage(ctx, art.Author.Id)
 		if err != nil {
-			zap.L().Error("删除文章缓存失败", zap.Int64("art.id", art.Author.Id), zap.Error(err))
+			zap.L().Error("删除文章list缓存失败", zap.Int64("art.author_id", art.Author.Id), zap.Error(err))
+		}
+		err = c.cache.Del(ctx, art.Id)
+		if err != nil {
+			zap.L().Warn("删除文章缓存失败", zap.Int64("art.id", art.Id), zap.Error(err))
 		}
 	}()
 	return c.dao.Sync(ctx, toArticleEntity(art))
@@ -153,7 +161,11 @@ func (c *CachedArticleRepository) Update(ctx context.Context, art domain.Article
 	defer func() {
 		err := c.cache.DeleteFirstPage(ctx, art.Author.Id)
 		if err != nil {
-			zap.L().Error("删除文章缓存失败", zap.Int64("art.id", art.Author.Id), zap.Error(err))
+			zap.L().Error("删除文章list缓存失败", zap.Int64("art.author_id", art.Author.Id), zap.Error(err))
+		}
+		err = c.cache.Del(ctx, art.Id)
+		if err != nil {
+			zap.L().Warn("删除文章缓存失败", zap.Int64("art.id", art.Id), zap.Error(err))
 		}
 	}()
 	return c.dao.UpdateById(ctx, toArticleEntity(art))

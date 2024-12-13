@@ -19,9 +19,11 @@ type MongoDBArticleDAO struct {
 
 func (m *MongoDBArticleDAO) GetPubById(ctx context.Context, id int64) (PublishedArticle, error) {
 	filter := bson.M{"id": id}
-	var art PublishedArticle
+	var art Article
 	err := m.liveCol.FindOne(ctx, filter).Decode(&art)
-	return art, err
+	return PublishedArticle{
+		art,
+	}, err
 }
 
 func (m *MongoDBArticleDAO) GetById(ctx context.Context, id int64) (Article, error) {
@@ -108,10 +110,10 @@ func (m *MongoDBArticleDAO) Sync(ctx context.Context, art Article) (int64, error
 	now := time.Now().UnixMilli()
 	art.Utime = now
 	filter := bson.D{bson.E{"id", art.Id},
-		bson.E{"authot_id", art.AuthorId}}
+		bson.E{"author_id", art.AuthorId}}
 	set := bson.D{bson.E{"$set", art},
 		bson.E{"$setOnInsert", bson.D{bson.E{"ctime", now}}}}
-	_, err = m.liveCol.UpdateOne(ctx, filter, set)
+	_, err = m.liveCol.UpdateOne(ctx, filter, set, options.Update().SetUpsert(true))
 	return id, err
 }
 
