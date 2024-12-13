@@ -1,6 +1,9 @@
 package web
 
-import "basic-project/webook/internal/domain"
+import (
+	"basic-project/webook/internal/domain"
+	"strconv"
+)
 
 type Page struct {
 	Limit  int `json:"limit"`
@@ -8,7 +11,7 @@ type Page struct {
 }
 
 type ArticleVO struct {
-	Id         int64  `json:"id"`
+	Id         string `json:"id"`
 	Title      string `json:"title"`
 	Abstract   string `json:"abstract"`
 	Content    string `json:"content"`
@@ -23,7 +26,7 @@ func toArticleVOs(arts []domain.Article) []ArticleVO {
 	result := make([]ArticleVO, 0)
 	for _, art := range arts {
 		result = append(result, ArticleVO{
-			Id:       art.Id,
+			Id:       strconv.FormatInt(art.Id, 10),
 			Title:    art.Title,
 			Abstract: art.Abstract(),
 			Status:   art.Status.ToUint8(),

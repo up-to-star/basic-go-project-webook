@@ -154,7 +154,7 @@ func (h *ArticleHandle) Publish(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, Result{
 		Code: 0,
 		Msg:  "OK",
-		Data: artId,
+		Data: strconv.FormatInt(artId, 10),
 	})
 }
 
@@ -234,7 +234,7 @@ func (h *ArticleHandle) Detail(ctx *gin.Context) {
 		Code: 0,
 		Msg:  "OK",
 		Data: ArticleVO{
-			Id:         id,
+			Id:         strconv.FormatInt(id, 10),
 			Title:      art.Title,
 			Abstract:   art.Abstract(),
 			Content:    art.Content,
@@ -272,7 +272,7 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 		Code: 0,
 		Msg:  "OK",
 		Data: ArticleVO{
-			Id:         id,
+			Id:         strconv.FormatInt(id, 10),
 			Title:      art.Title,
 			Abstract:   art.Abstract(),
 			Content:    art.Content,
@@ -286,14 +286,15 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 }
 
 type ArticleReq struct {
-	Id      int64  `json:"id"`
+	Id      string `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
 func (req *ArticleReq) toDomain(uid int64) domain.Article {
+	id, _ := strconv.ParseInt(req.Id, 10, 64)
 	return domain.Article{
-		Id:      req.Id,
+		Id:      id,
 		Title:   req.Title,
 		Content: req.Content,
 		Author: domain.Author{

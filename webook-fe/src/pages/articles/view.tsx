@@ -37,7 +37,7 @@ function Page(){
 
     const like = () => {
         axios.post('/articles/pub/like', {
-            id: parseInt(artID),
+            id: artID,
             like: !data.liked
         })
             .then((res) => res.data)

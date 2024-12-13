@@ -18,7 +18,7 @@ function Page() {
     const artID = params?.get("id")
     const onFinish = (values: any) => {
         if(artID) {
-            values.id = parseInt(artID)
+            values.id = artID
         }
         values.content = html
         axios.post("/articles/edit", values)
@@ -39,7 +39,7 @@ function Page() {
     const publish = () => {
         const values = form.getFieldsValue()
         if (artID) {
-            values.id = parseInt(artID)
+            values.id = artID
         }
         values.content = html
         axios.post("/articles/publish", values)
