@@ -304,8 +304,8 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 
 func (h *ArticleHandle) Like(ctx *gin.Context) {
 	type Req struct {
-		Id   int64 `json:"id"`
-		Like bool  `json:"like"`
+		Id   string `json:"id"`
+		Like bool   `json:"like"`
 	}
 	var req Req
 	err := ctx.Bind(&req)
@@ -328,17 +328,18 @@ func (h *ArticleHandle) Like(ctx *gin.Context) {
 		return
 	}
 	var err1 error
+	id, _ := strconv.ParseInt(req.Id, 10, 64)
 	if req.Like {
-		err1 = h.intrSvc.Like(ctx, h.biz, req.Id, claims.Uid)
+		err1 = h.intrSvc.Like(ctx, h.biz, id, claims.Uid)
 	} else {
-		err1 = h.intrSvc.CancelLike(ctx, h.biz, req.Id)
+		err1 = h.intrSvc.CancelLike(ctx, h.biz, id, claims.Uid)
 	}
 	if err1 != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
 			Msg:  "系统错误",
 		})
-		zap.L().Error("系统错误", zap.Error(err1), zap.Int64("uid", claims.Uid), zap.Int64("id", req.Id))
+		zap.L().Error("系统错误", zap.Error(err1), zap.Int64("uid", claims.Uid), zap.Int64("id", id))
 		return
 	}
 	ctx.JSON(http.StatusOK, Result{

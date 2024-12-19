@@ -7,7 +7,7 @@ import (
 
 type InteractiveService interface {
 	Like(ctx context.Context, biz string, id int64, uid int64) error
-	CancelLike(ctx context.Context, biz string, id int64) error
+	CancelLike(ctx context.Context, biz string, id int64, uid int64) error
 	IncrReadCnt(ctx context.Context, biz string, bizId int64) error
 }
 
@@ -19,14 +19,12 @@ func (i *interactiveService) IncrReadCnt(ctx context.Context, biz string, bizId 
 	return i.repo.IncrReadCnt(ctx, biz, bizId)
 }
 
-func (i *interactiveService) CancelLike(ctx context.Context, biz string, id int64) error {
-	//TODO implement me
-	panic("implement me")
+func (i *interactiveService) CancelLike(ctx context.Context, biz string, id int64, uid int64) error {
+	return i.repo.DecrLike(ctx, biz, id, uid)
 }
 
 func (i *interactiveService) Like(ctx context.Context, biz string, id int64, uid int64) error {
-	//TODO implement me
-	panic("implement me")
+	return i.repo.IncrLike(ctx, biz, id, uid)
 }
 
 func NewInteractiveService(repo repository.InteractiveRepository) InteractiveService {
