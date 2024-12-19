@@ -4,22 +4,28 @@ import (
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
 	ijwt "basic-project/webook/internal/web/jwt"
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type ArticleHandle struct {
 	svc service.ArticleService
 	ijwt.Handler
+	intrSvc service.InteractiveService
+	biz     string
 }
 
-func NewArticleHandle(svc service.ArticleService, hdl ijwt.Handler) *ArticleHandle {
+func NewArticleHandle(svc service.ArticleService, hdl ijwt.Handler, intr service.InteractiveService) *ArticleHandle {
 	return &ArticleHandle{
 		svc:     svc,
 		Handler: hdl,
+		intrSvc: intr,
+		biz:     "article",
 	}
 }
 
@@ -33,6 +39,7 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 
 	pub := g.Group("/pub")
 	pub.GET("/:id", h.PubDetail)
+	pub.POST("/like", h.Like)
 }
 
 func (h *ArticleHandle) List(ctx *gin.Context) {
@@ -260,6 +267,16 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 	}
 
 	art, err := h.svc.GetPubById(ctx, id)
+	// 更新阅读数量
+	go func() {
+		newCtx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+		defer cancel()
+		er := h.intrSvc.IncrReadCnt(newCtx, h.biz, art.Id)
+		if er != nil {
+			zap.L().Error("更新阅读次数失败", zap.Error(er), zap.Int64("art_id", art.Id))
+		}
+	}()
+
 	if err != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
@@ -282,6 +299,51 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 			Ctime:      art.Ctime.Format("2006-01-02 15:04:05"),
 			Utime:      art.Utime.Format("2006-01-02 15:04:05"),
 		},
+	})
+}
+
+func (h *ArticleHandle) Like(ctx *gin.Context) {
+	type Req struct {
+		Id   int64 `json:"id"`
+		Like bool  `json:"like"`
+	}
+	var req Req
+	err := ctx.Bind(&req)
+	if err != nil {
+		zap.L().Error("article Like Bind 出错", zap.Error(err))
+		return
+	}
+
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("未发现用户信息，用户未登录", zap.Error(err))
+		return
+	}
+	var err1 error
+	if req.Like {
+		err1 = h.intrSvc.Like(ctx, h.biz, req.Id, claims.Uid)
+	} else {
+		err1 = h.intrSvc.CancelLike(ctx, h.biz, req.Id)
+	}
+	if err1 != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("系统错误", zap.Error(err1), zap.Int64("uid", claims.Uid), zap.Int64("id", req.Id))
+		return
+	}
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "OK",
 	})
 }
 

@@ -20,24 +20,28 @@ func InitWebServer() *gin.Engine {
 	wire.Build(
 		// 第三方依赖
 		ioc.InitDB, ioc.InitRedis,
-		ioc.InitMongoDB,
-		ioc.InitSnowFlakeNode,
+		//ioc.InitMongoDB,
+		//ioc.InitSnowFlakeNode,
 		// dao 部分
 		dao.NewUserDAO,
-		//article2.NewArticleDAO,
-		article2.NewMongoDBArticleDAO,
+		article2.NewArticleDAO,
+		//article2.NewMongoDBArticleDAO,
+		dao.NewGORMInteractiveDAO,
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
 		cache.NewRedisArticleCache,
+		cache.NewInteractiveRedisCache,
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,
 		article.NewArticleRepository,
+		repository.NewCachedInteractiveRepository,
 		// service 部分
 		ioc.InitSMSService,
 		service.NewUserService,
 		service.NewCodeService,
 		ioc.InitOAuth2WechatService,
 		service.NewArticleService,
+		service.NewInteractiveService,
 		// handler 部分
 		ijwt.NewRedisJwtHandler,
 		web.NewUserHandle,
