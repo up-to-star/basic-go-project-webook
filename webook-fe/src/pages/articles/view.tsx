@@ -59,7 +59,7 @@ function Page(){
             return
         }
         axios.post('/articles/pub/collect', {
-            id: parseInt(artID),
+            id: artID,
             // 你可以加上增删改查收藏夹的功能，在这里传入收藏夹 ID
             cid: 0,
         })

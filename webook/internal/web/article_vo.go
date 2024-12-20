@@ -18,8 +18,15 @@ type ArticleVO struct {
 	AuthorId   int64  `json:"author_id"`
 	AuthorName string `json:"author_name"`
 	Status     uint8  `json:"status"`
-	Ctime      string `json:"ctime"`
-	Utime      string `json:"utime"`
+	ReadCnt    int64  `json:"read_cnt"`
+	LikeCnt    int64  `json:"like_cnt"`
+	CollectCnt int64  `json:"collect_cnt"`
+
+	Liked     bool `json:"liked"`
+	Collected bool `json:"collected"`
+
+	Ctime string `json:"ctime"`
+	Utime string `json:"utime"`
 }
 
 func toArticleVOs(arts []domain.Article) []ArticleVO {

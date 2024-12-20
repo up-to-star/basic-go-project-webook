@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrUserDuplicate = errors.New("账号已经被注册过了")
-	ErrUserNotFount  = gorm.ErrRecordNotFound
+	ErrUserDuplicate  = errors.New("账号已经被注册过了")
+	ErrRecordNotFount = gorm.ErrRecordNotFound
 )
 
 type UserDAO interface {

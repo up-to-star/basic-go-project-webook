@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"net/http"
 	"strconv"
 	"time"
@@ -40,6 +41,7 @@ func (h *ArticleHandle) RegisterRoutes(server *gin.Engine) {
 	pub := g.Group("/pub")
 	pub.GET("/:id", h.PubDetail)
 	pub.POST("/like", h.Like)
+	pub.POST("/collect", h.Collect)
 }
 
 func (h *ArticleHandle) List(ctx *gin.Context) {
@@ -266,7 +268,48 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 		return
 	}
 
-	art, err := h.svc.GetPubById(ctx, id)
+	var (
+		eg   errgroup.Group
+		art  domain.Article
+		intr domain.Interactive
+	)
+
+	eg.Go(func() error {
+		var er error
+		art, er = h.svc.GetPubById(ctx, id)
+		return er
+	})
+
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("非法用户信息", zap.Error(err))
+		return
+	}
+
+	eg.Go(func() error {
+		var er error
+		intr, er = h.intrSvc.Get(ctx, h.biz, id, claims.Uid)
+		return er
+	})
+	err = eg.Wait()
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("系统错误，查询文章失败", zap.Error(err), zap.Int64("id", id),
+			zap.Int64("uid", claims.Uid))
+		return
+	}
+
 	// 更新阅读数量
 	go func() {
 		newCtx, cancel := context.WithTimeout(context.Background(), time.Second*60)
@@ -277,14 +320,6 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 		}
 	}()
 
-	if err != nil {
-		ctx.JSON(http.StatusOK, Result{
-			Code: 5,
-			Msg:  "系统错误",
-		})
-		zap.L().Error("文章查询失败，系统错误", zap.Error(err))
-		return
-	}
 	ctx.JSON(http.StatusOK, Result{
 		Code: 0,
 		Msg:  "OK",
@@ -298,6 +333,11 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 			Status:     art.Status.ToUint8(),
 			Ctime:      art.Ctime.Format("2006-01-02 15:04:05"),
 			Utime:      art.Utime.Format("2006-01-02 15:04:05"),
+			ReadCnt:    intr.ReadCnt,
+			LikeCnt:    intr.LikeCnt,
+			CollectCnt: intr.CollectCnt,
+			Liked:      intr.Liked,
+			Collected:  intr.Collected,
 		},
 	})
 }
@@ -340,6 +380,47 @@ func (h *ArticleHandle) Like(ctx *gin.Context) {
 			Msg:  "系统错误",
 		})
 		zap.L().Error("系统错误", zap.Error(err1), zap.Int64("uid", claims.Uid), zap.Int64("id", id))
+		return
+	}
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "OK",
+	})
+}
+
+func (h *ArticleHandle) Collect(ctx *gin.Context) {
+	type Req struct {
+		Id  string `json:"id"`
+		Cid int64  `json:"cid"`
+	}
+
+	var req Req
+	err := ctx.Bind(&req)
+	if err != nil {
+		zap.L().Error("Article Collect Bind 错误", zap.Error(err))
+		return
+	}
+	var claims ijwt.UserClaims
+	tokenStr := h.ExtractToken(ctx)
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return ijwt.AtKey, nil
+	})
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusOK, &Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("未发现用户信息，用户未登录", zap.Error(err))
+		return
+	}
+	id, _ := strconv.ParseInt(req.Id, 10, 64)
+	err = h.intrSvc.Collect(ctx, h.biz, id, req.Cid, claims.Uid)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		zap.L().Error("收藏失败", zap.Error(err), zap.Int64("cid", req.Cid), zap.Int64("id", id))
 		return
 	}
 	ctx.JSON(http.StatusOK, Result{
