@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 func main() {
@@ -14,11 +12,15 @@ func main() {
 	initViper()
 
 	initZap()
-	server := InitWebServer()
-	server.GET("/hello", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "hello world")
-	})
-	_ = server.Run(":8080")
+
+	app := InitWebServer()
+	for _, consumer := range app.consumers {
+		consumer.Start()
+	}
+	err := app.web.Run(":8080")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func initZap() {

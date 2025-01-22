@@ -274,12 +274,6 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 		intr domain.Interactive
 	)
 
-	eg.Go(func() error {
-		var er error
-		art, er = h.svc.GetPubById(ctx, id)
-		return er
-	})
-
 	var claims ijwt.UserClaims
 	tokenStr := h.ExtractToken(ctx)
 	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -293,6 +287,12 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 		zap.L().Error("非法用户信息", zap.Error(err))
 		return
 	}
+
+	eg.Go(func() error {
+		var er error
+		art, er = h.svc.GetPubById(ctx, claims.Uid, id)
+		return er
+	})
 
 	eg.Go(func() error {
 		var er error

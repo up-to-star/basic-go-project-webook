@@ -12,29 +12,35 @@ import (
 	"basic-project/webook/internal/web"
 	ijwt "basic-project/webook/internal/web/jwt"
 	"basic-project/webook/ioc"
-	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
 
-func InitWebServer() *gin.Engine {
+func InitWebServer() *App {
 	wire.Build(
 		// 第三方依赖
 		ioc.InitDB, ioc.InitRedis,
+		ioc.InitProducer,
 		//ioc.InitMongoDB,
 		//ioc.InitSnowFlakeNode,
+
 		// dao 部分
 		dao.NewUserDAO,
 		article2.NewArticleDAO,
 		//article2.NewMongoDBArticleDAO,
 		dao.NewGORMInteractiveDAO,
+
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
 		cache.NewRedisArticleCache,
 		cache.NewInteractiveRedisCache,
+
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,
 		article.NewArticleRepository,
 		repository.NewCachedInteractiveRepository,
+		ioc.InitInteractiveReadEventConsumer,
+		ioc.InitConsumers,
+
 		// service 部分
 		ioc.InitSMSService,
 		service.NewUserService,
@@ -42,6 +48,7 @@ func InitWebServer() *gin.Engine {
 		ioc.InitOAuth2WechatService,
 		service.NewArticleService,
 		service.NewInteractiveService,
+
 		// handler 部分
 		ijwt.NewRedisJwtHandler,
 		web.NewUserHandle,
@@ -49,6 +56,8 @@ func InitWebServer() *gin.Engine {
 		web.NewOAuth2WechatHandler,
 		ioc.InitGinMiddlewares,
 		ioc.InitWebserver,
+
+		wire.Struct(new(App), "*"),
 	)
-	return gin.Default()
+	return new(App)
 }
