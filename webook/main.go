@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 func main() {
@@ -13,14 +15,27 @@ func main() {
 
 	initZap()
 
+	initPrometheus()
+
 	app := InitWebServer()
 	for _, consumer := range app.consumers {
 		consumer.Start()
 	}
-	err := app.web.Run(":8080")
+	server := app.web
+	err := server.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+func initPrometheus() {
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		err := http.ListenAndServe(":8081", nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
 }
 
 func initZap() {

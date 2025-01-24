@@ -64,3 +64,10 @@ services:
       - kafka
     environment:
       DYNAMIC_CONFIG_ENABLED: "TRUE"
+
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090

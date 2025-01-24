@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/prometheus"
 	"moul.io/zapgorm2"
 )
 
@@ -23,6 +24,19 @@ func InitDB() *gorm.DB {
 	db, err := gorm.Open(mysql.Open(cfg.DSN), &gorm.Config{
 		Logger: logger,
 	})
+	if err != nil {
+		panic(err)
+	}
+	err = db.Use(prometheus.New(prometheus.Config{
+		DBName:          "webook",
+		RefreshInterval: 15,
+		StartServer:     false,
+		MetricsCollector: []prometheus.MetricsCollector{
+			&prometheus.MySQL{
+				VariableNames: []string{"Threads_running"},
+			},
+		},
+	}))
 	if err != nil {
 		panic(err)
 	}
