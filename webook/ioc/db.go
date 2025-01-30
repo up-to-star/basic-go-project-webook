@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 	"gorm.io/plugin/prometheus"
 	"moul.io/zapgorm2"
 	"time"
@@ -39,6 +40,10 @@ func InitDB() *gorm.DB {
 			},
 		},
 	}))
+	if err != nil {
+		panic(err)
+	}
+	err = db.Use(tracing.NewPlugin(tracing.WithDBName("webook")))
 	if err != nil {
 		panic(err)
 	}

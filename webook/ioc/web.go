@@ -11,6 +11,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ func InitGinMiddlewares(redisClient redis.Cmdable, jwtHdl ijwt.Handler) []gin.Ha
 			},
 			MaxAge: 12 * time.Hour,
 		}),
+		otelgin.Middleware("webook"),
 		ratelimit.NewBuilder(ratelimit2.NewRedisSlideWindowLimiter(redisClient, time.Second, 100)).Build(),
 		middleware.NewLoginJWTMiddleWareBuilder(jwtHdl).
 			IgnorePaths("/users/login").

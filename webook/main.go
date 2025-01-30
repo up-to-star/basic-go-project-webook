@@ -1,12 +1,15 @@
 package main
 
 import (
+	"basic-project/webook/ioc"
+	"context"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -14,6 +17,13 @@ func main() {
 	initViper()
 
 	initZap()
+
+	tpCancel := ioc.InitOTEL()
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		tpCancel(ctx)
+	}()
 
 	initPrometheus()
 
