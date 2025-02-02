@@ -8,6 +8,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"time"
 )
 
 type ArticleService interface {
@@ -16,6 +17,7 @@ type ArticleService interface {
 	PublishV1(ctx context.Context, art domain.Article) (int64, error)
 	Withdraw(ctx *gin.Context, art domain.Article) error
 	List(ctx *gin.Context, uid int64, limit int, offset int) ([]domain.Article, error)
+	ListPub(ctx context.Context, start time.Time, offset int, limit int) ([]domain.Article, error)
 	GetById(ctx *gin.Context, id int64) (domain.Article, error)
 	GetPubById(ctx context.Context, id, uid int64) (domain.Article, error)
 }
@@ -34,6 +36,11 @@ func NewArticleService(repo article.ArticleRepository, producer events.Producer)
 		repo:     repo,
 		producer: producer,
 	}
+}
+
+func (a *articleService) ListPub(ctx context.Context, start time.Time, offset int, limit int) ([]domain.Article, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (a *articleService) GetPubById(ctx context.Context, id, uid int64) (domain.Article, error) {
