@@ -2,11 +2,10 @@ package service
 
 import (
 	"basic-project/webook/internal/domain"
+	"basic-project/webook/internal/repository"
 	"context"
 	"errors"
 	"github.com/ecodeclub/ekit/queue"
-	"github.com/ecodeclub/ekit/slice"
-	"log"
 	"math"
 	"time"
 )
@@ -18,19 +17,22 @@ type RankingService interface {
 type BatchRankingService struct {
 	artSvc    ArticleService
 	intrSvc   InteractiveService
+	repo      repository.RankingRepository
 	batchSize int
 	n         int
 	scoreFunc func(t time.Time, likeCnt int64) float64
 }
 
-func NewBatchRankingService(artSvc ArticleService, intrSvc InteractiveService) *BatchRankingService {
+func NewBatchRankingService(artSvc ArticleService, intrSvc InteractiveService, repo repository.RankingRepository) RankingService {
 	return &BatchRankingService{
 		artSvc:    artSvc,
 		intrSvc:   intrSvc,
+		repo:      repo,
 		batchSize: 100,
 		n:         100,
 		scoreFunc: func(t time.Time, likeCnt int64) float64 {
-			return float64(likeCnt-1) / math.Pow(float64(likeCnt+2), 1.5)
+			sec := time.Since(t).Seconds()
+			return float64(likeCnt-1) / math.Pow(sec+2, 1.5)
 		},
 	}
 }
@@ -40,8 +42,8 @@ func (svc *BatchRankingService) TopN(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Println(arts)
-	return nil
+	// 存入缓存中
+	return svc.repo.ReplaceTopN(ctx, arts)
 }
 
 func (svc *BatchRankingService) topN(ctx context.Context) ([]domain.Article, error) {
@@ -67,9 +69,12 @@ func (svc *BatchRankingService) topN(ctx context.Context) ([]domain.Article, err
 		if err != nil {
 			return nil, err
 		}
-		ids := slice.Map(arts, func(idx int, art domain.Article) int64 {
-			return art.Id
-		})
+
+		ids := make([]int64, len(arts))
+		for i, art := range arts {
+			ids[i] = art.Id
+		}
+
 		intrMap, err := svc.intrSvc.GetByIds(ctx, "article", ids)
 		if err != nil {
 			return nil, err

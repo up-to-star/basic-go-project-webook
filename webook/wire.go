@@ -15,6 +15,12 @@ import (
 	"github.com/google/wire"
 )
 
+var rankingSvcSet = wire.NewSet(
+	cache.NewRankingRedisCache,
+	repository.NewOnlyCachedRankingRepository,
+	service.NewBatchRankingService,
+)
+
 func InitWebServer() *App {
 	wire.Build(
 		// 第三方依赖
@@ -22,6 +28,7 @@ func InitWebServer() *App {
 		ioc.InitProducer,
 		//ioc.InitMongoDB,
 		//ioc.InitSnowFlakeNode,
+		ioc.InitRlockClient,
 
 		// dao 部分
 		dao.NewUserDAO,
@@ -33,6 +40,12 @@ func InitWebServer() *App {
 		cache.NewUserCache, cache.NewCodeCache,
 		cache.NewRedisArticleCache,
 		cache.NewInteractiveRedisCache,
+
+		// ranking
+		rankingSvcSet,
+
+		ioc.InitJobs,
+		ioc.InitRankingJob,
 
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,

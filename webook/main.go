@@ -31,6 +31,12 @@ func main() {
 	for _, consumer := range app.consumers {
 		consumer.Start()
 	}
+	// 启动定时任务
+	app.cron.Start()
+	defer func() {
+		// 等待定时任务退出
+		<-app.cron.Stop().Done()
+	}()
 	server := app.web
 	err := server.Run(":8080")
 	if err != nil {

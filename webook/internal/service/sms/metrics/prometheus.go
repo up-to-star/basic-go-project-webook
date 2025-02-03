@@ -13,7 +13,8 @@ type PrometheusDecorator struct {
 }
 
 func NewPrometheusDecorator(svc sms.Service) sms.Service {
-	vector := prometheus.NewSummaryVec(prometheus.SummaryOpts{
+	vector := prometheus.NewSummaryVec(prometheus.
+		SummaryOpts{
 		Namespace: "study",
 		Subsystem: "webook_sms",
 		Name:      "sms_resp_time",

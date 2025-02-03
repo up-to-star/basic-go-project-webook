@@ -17,6 +17,11 @@ type MongoDBArticleDAO struct {
 	liveCol *mongo.Collection
 }
 
+func (m *MongoDBArticleDAO) ListPub(ctx context.Context, start time.Time, offset int, limit int) ([]Article, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MongoDBArticleDAO) GetPubById(ctx context.Context, id int64) (PublishedArticle, error) {
 	filter := bson.M{"id": id}
 	var art Article
