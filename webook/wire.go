@@ -17,6 +17,7 @@ import (
 
 var rankingSvcSet = wire.NewSet(
 	cache.NewRankingRedisCache,
+	cache.NewRankingLocalCache,
 	repository.NewOnlyCachedRankingRepository,
 	service.NewBatchRankingService,
 )
