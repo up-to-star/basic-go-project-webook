@@ -3,6 +3,10 @@
 package startup
 
 import (
+	repository2 "basic-project/webook/interactive/repository"
+	cache2 "basic-project/webook/interactive/repository/cache"
+	dao2 "basic-project/webook/interactive/repository/dao"
+	service2 "basic-project/webook/interactive/service"
 	"basic-project/webook/internal/repository"
 	"basic-project/webook/internal/repository/article"
 	"basic-project/webook/internal/repository/cache"
@@ -23,15 +27,15 @@ func InitWebServer() *gin.Engine {
 		// dao 部分
 		dao.NewUserDAO,
 		article2.NewArticleDAO,
-		dao.NewGORMInteractiveDAO,
+		dao2.NewGORMInteractiveDAO,
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
 		cache.NewRedisArticleCache,
-		cache.NewInteractiveRedisCache,
+		cache2.NewInteractiveRedisCache,
 		// repository
 		repository.NewUserRepository, repository.NewCodeRepository,
 		article.NewArticleRepository,
-		repository.NewCachedInteractiveRepository,
+		repository2.NewCachedInteractiveRepository,
 
 		// producer 部分
 		ioc.InitProducer,
@@ -42,7 +46,7 @@ func InitWebServer() *gin.Engine {
 		service.NewCodeService,
 		ioc.InitOAuth2WechatService,
 		service.NewArticleService,
-		service.NewInteractiveService,
+		service2.NewInteractiveService,
 		// handler 部分
 		ijwt.NewRedisJwtHandler,
 		web.NewUserHandle,

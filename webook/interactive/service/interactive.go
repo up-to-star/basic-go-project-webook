@@ -1,8 +1,8 @@
 package service
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository"
+	"basic-project/webook/interactive/domain"
+	"basic-project/webook/interactive/repository"
 	"context"
 	"golang.org/x/sync/errgroup"
 )

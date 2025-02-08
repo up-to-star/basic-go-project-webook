@@ -1,6 +1,8 @@
 package web
 
 import (
+	domain2 "basic-project/webook/interactive/domain"
+	service2 "basic-project/webook/interactive/service"
 	"basic-project/webook/internal/domain"
 	"basic-project/webook/internal/service"
 	ijwt "basic-project/webook/internal/web/jwt"
@@ -17,11 +19,11 @@ import (
 type ArticleHandle struct {
 	svc service.ArticleService
 	ijwt.Handler
-	intrSvc service.InteractiveService
+	intrSvc service2.InteractiveService
 	biz     string
 }
 
-func NewArticleHandle(svc service.ArticleService, hdl ijwt.Handler, intr service.InteractiveService) *ArticleHandle {
+func NewArticleHandle(svc service.ArticleService, hdl ijwt.Handler, intr service2.InteractiveService) *ArticleHandle {
 	return &ArticleHandle{
 		svc:     svc,
 		Handler: hdl,
@@ -271,7 +273,7 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 	var (
 		eg   errgroup.Group
 		art  domain.Article
-		intr domain.Interactive
+		intr domain2.Interactive
 	)
 
 	var claims ijwt.UserClaims

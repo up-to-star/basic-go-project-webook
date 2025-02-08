@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository/cache"
-	"basic-project/webook/internal/repository/dao"
+	"basic-project/webook/interactive/domain"
+	"basic-project/webook/interactive/repository/cache"
+	"basic-project/webook/interactive/repository/dao"
 	"context"
 	"errors"
 	"go.uber.org/zap"

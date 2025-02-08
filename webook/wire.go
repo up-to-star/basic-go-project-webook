@@ -3,6 +3,10 @@
 package main
 
 import (
+	repository2 "basic-project/webook/interactive/repository"
+	cache2 "basic-project/webook/interactive/repository/cache"
+	dao2 "basic-project/webook/interactive/repository/dao"
+	service2 "basic-project/webook/interactive/service"
 	"basic-project/webook/internal/repository"
 	"basic-project/webook/internal/repository/article"
 	"basic-project/webook/internal/repository/cache"
@@ -22,6 +26,13 @@ var rankingSvcSet = wire.NewSet(
 	service.NewBatchRankingService,
 )
 
+var interactiveSvcSet = wire.NewSet(
+	dao2.NewGORMInteractiveDAO,
+	cache2.NewInteractiveRedisCache,
+	repository2.NewCachedInteractiveRepository,
+	service2.NewInteractiveService,
+)
+
 func InitWebServer() *App {
 	wire.Build(
 		// 第三方依赖
@@ -35,13 +46,12 @@ func InitWebServer() *App {
 		dao.NewUserDAO,
 		article2.NewArticleDAO,
 		//article2.NewMongoDBArticleDAO,
-		dao.NewGORMInteractiveDAO,
 
 		// cache 部分
 		cache.NewUserCache, cache.NewCodeCache,
 		cache.NewRedisArticleCache,
-		cache.NewInteractiveRedisCache,
 
+		interactiveSvcSet,
 		// ranking
 		rankingSvcSet,
 
@@ -49,9 +59,10 @@ func InitWebServer() *App {
 		ioc.InitRankingJob,
 
 		// repository
-		repository.NewUserRepository, repository.NewCodeRepository,
+		repository.NewUserRepository,
+		repository.NewCodeRepository,
 		article.NewArticleRepository,
-		repository.NewCachedInteractiveRepository,
+
 		ioc.InitInteractiveReadEventConsumer,
 		ioc.InitConsumers,
 
@@ -61,7 +72,6 @@ func InitWebServer() *App {
 		service.NewCodeService,
 		ioc.InitOAuth2WechatService,
 		service.NewArticleService,
-		service.NewInteractiveService,
 
 		// handler 部分
 		ijwt.NewRedisJwtHandler,

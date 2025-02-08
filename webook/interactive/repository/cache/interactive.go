@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"basic-project/webook/internal/domain"
+	"basic-project/webook/interactive/domain"
 	"context"
 	_ "embed"
 	"fmt"

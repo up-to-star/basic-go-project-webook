@@ -1,6 +1,7 @@
 package ioc
 
 import (
+	dao2 "basic-project/webook/interactive/repository/dao"
 	"basic-project/webook/internal/repository/dao"
 	prometheus2 "github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/viper"
@@ -55,6 +56,10 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
+	err = dao2.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
 	return db
 }
 
@@ -68,6 +73,11 @@ func InitDBDefault() *gorm.DB {
 		panic(err)
 	}
 	err = dao.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = dao2.InitTable(db)
 	if err != nil {
 		panic(err)
 	}

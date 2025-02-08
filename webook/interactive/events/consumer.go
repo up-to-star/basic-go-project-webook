@@ -1,7 +1,7 @@
-package article
+package events
 
 import (
-	"basic-project/webook/internal/repository"
+	"basic-project/webook/interactive/repository"
 	"context"
 	"encoding/json"
 	"github.com/segmentio/kafka-go"

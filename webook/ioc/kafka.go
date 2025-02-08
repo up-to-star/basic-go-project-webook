@@ -1,9 +1,10 @@
 package ioc
 
 import (
+	events2 "basic-project/webook/interactive/events"
+	"basic-project/webook/interactive/repository"
 	"basic-project/webook/internal/events"
 	"basic-project/webook/internal/events/article"
-	"basic-project/webook/internal/repository"
 	"github.com/spf13/viper"
 )
 
@@ -19,7 +20,7 @@ func InitProducer() article.Producer {
 	return article.NewKafkaProducer(cfg.Addr)
 }
 
-func InitInteractiveReadEventConsumer(repo repository.InteractiveRepository) *article.InteractiveReadEventConsumer {
+func InitInteractiveReadEventConsumer(repo repository.InteractiveRepository) *events2.InteractiveReadEventConsumer {
 	type Config struct {
 		Addr []string `yaml:"addr"`
 	}
@@ -28,9 +29,9 @@ func InitInteractiveReadEventConsumer(repo repository.InteractiveRepository) *ar
 	if err != nil {
 		panic(err)
 	}
-	return article.NewInteractiveReadEventConsumer(cfg.Addr, repo)
+	return events2.NewInteractiveReadEventConsumer(cfg.Addr, repo)
 }
 
-func InitConsumers(c1 *article.InteractiveReadEventConsumer) []events.Consumer {
+func InitConsumers(c1 *events2.InteractiveReadEventConsumer) []events.Consumer {
 	return []events.Consumer{c1}
 }

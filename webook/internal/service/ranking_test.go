@@ -1,6 +1,8 @@
 package service
 
 import (
+	domain2 "basic-project/webook/interactive/domain"
+	"basic-project/webook/interactive/service"
 	"basic-project/webook/internal/domain"
 	svcmocks "basic-project/webook/internal/service/mocks"
 	"context"
@@ -14,13 +16,13 @@ func TestRankingTopN(t *testing.T) {
 	now := time.Now()
 	testCases := []struct {
 		name     string
-		mock     func(ctrl *gomock.Controller) (ArticleService, InteractiveService)
+		mock     func(ctrl *gomock.Controller) (ArticleService, service.InteractiveService)
 		wantErr  error
 		wantArts []domain.Article
 	}{
 		{
 			name: "计算成功",
-			mock: func(ctrl *gomock.Controller) (ArticleService, InteractiveService) {
+			mock: func(ctrl *gomock.Controller) (ArticleService, service.InteractiveService) {
 				artSvc := svcmocks.NewMockArticleService(ctrl)
 				artSvc.EXPECT().ListPub(gomock.Any(), gomock.Any(), 0, 3).Return([]domain.Article{
 					{Id: 1, Ctime: now, Utime: now},
@@ -29,12 +31,12 @@ func TestRankingTopN(t *testing.T) {
 				}, nil)
 				artSvc.EXPECT().ListPub(gomock.Any(), gomock.Any(), 3, 3).Return([]domain.Article{}, nil)
 				intrSvc := svcmocks.NewMockInteractiveService(ctrl)
-				intrSvc.EXPECT().GetByIds(gomock.Any(), "article", []int64{1, 2, 3}).Return(map[int64]domain.Interactive{
+				intrSvc.EXPECT().GetByIds(gomock.Any(), "article", []int64{1, 2, 3}).Return(map[int64]domain2.Interactive{
 					1: {BizId: 1, LikeCnt: 1},
 					2: {BizId: 2, LikeCnt: 2},
 					3: {BizId: 3, LikeCnt: 3},
 				}, nil)
-				intrSvc.EXPECT().GetByIds(gomock.Any(), "article", []int64{}).Return(map[int64]domain.Interactive{}, nil)
+				intrSvc.EXPECT().GetByIds(gomock.Any(), "article", []int64{}).Return(map[int64]domain2.Interactive{}, nil)
 
 				return artSvc, intrSvc
 			},
