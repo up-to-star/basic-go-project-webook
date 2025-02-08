@@ -1,11 +1,11 @@
 package article
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository"
-	"basic-project/webook/internal/repository/cache"
-	"basic-project/webook/internal/repository/dao/article"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao/article"
 	"go.uber.org/zap"
 	"time"
 )

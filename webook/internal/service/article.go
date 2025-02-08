@@ -1,11 +1,11 @@
 package service
 
 import (
-	"basic-project/webook/internal/domain"
-	events "basic-project/webook/internal/events/article"
-	"basic-project/webook/internal/repository/article"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	events "github.com/basic-go-project-webook/webook/internal/events/article"
+	"github.com/basic-go-project-webook/webook/internal/repository/article"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"time"

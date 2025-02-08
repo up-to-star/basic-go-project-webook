@@ -1,11 +1,11 @@
 package web
 
 import (
-	"basic-project/webook/internal/service"
-	"basic-project/webook/internal/service/oauth2/wechat"
-	ijwt "basic-project/webook/internal/web/jwt"
 	"errors"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	"github.com/basic-go-project-webook/webook/internal/service/oauth2/wechat"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	uuid "github.com/lithammer/shortuuid/v4"

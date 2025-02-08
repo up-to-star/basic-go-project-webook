@@ -1,10 +1,10 @@
 package cache
 
 import (
-	"basic-project/webook/interactive/domain"
 	"context"
 	_ "embed"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/interactive/domain"
 	"github.com/redis/go-redis/v9"
 	"strconv"
 	"time"

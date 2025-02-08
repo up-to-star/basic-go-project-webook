@@ -10,8 +10,8 @@
 package repomocks
 
 import (
-	domain "basic-project/webook/internal/domain"
 	context "context"
+	domain "github.com/basic-go-project-webook/webook/internal/domain"
 	reflect "reflect"
 
 	gin "github.com/gin-gonic/gin"

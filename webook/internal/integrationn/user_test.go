@@ -1,12 +1,12 @@
 package integrationn
 
 import (
-	"basic-project/webook/internal/integrationn/startup"
-	"basic-project/webook/internal/web"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/integrationn/startup"
+	"github.com/basic-go-project-webook/webook/internal/web"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"

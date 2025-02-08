@@ -1,4 +1,4 @@
-module basic-project
+module github.com/basic-go-project-webook
 
 go 1.22.0
 

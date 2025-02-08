@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository/cache"
-	"basic-project/webook/internal/repository/dao"
 	"context"
 	"database/sql"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao"
 	"github.com/gin-gonic/gin"
 	"time"
 )

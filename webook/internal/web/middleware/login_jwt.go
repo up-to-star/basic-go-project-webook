@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	ijwt "basic-project/webook/internal/web/jwt"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"

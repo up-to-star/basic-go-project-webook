@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"basic-project/webook/internal/repository/cache"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache"
 )
 
 var (

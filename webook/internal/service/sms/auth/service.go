@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"basic-project/webook/internal/service/sms"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 	"github.com/golang-jwt/jwt/v5"
 )
 

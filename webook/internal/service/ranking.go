@@ -1,11 +1,11 @@
 package service
 
 import (
-	"basic-project/webook/interactive/service"
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/interactive/service"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository"
 	"github.com/ecodeclub/ekit/queue"
 	"math"
 	"time"

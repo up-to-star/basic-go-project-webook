@@ -1,7 +1,7 @@
 package web
 
 import (
-	"basic-project/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/domain"
 	"strconv"
 )
 

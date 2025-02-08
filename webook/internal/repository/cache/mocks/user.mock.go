@@ -10,8 +10,8 @@
 package cachemocks
 
 import (
-	domain "basic-project/webook/internal/domain"
 	context "context"
+	domain "github.com/basic-go-project-webook/webook/internal/domain"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

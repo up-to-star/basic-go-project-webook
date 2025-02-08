@@ -1,8 +1,8 @@
 package job
 
 import (
-	"basic-project/webook/internal/service"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/service"
 	rlock "github.com/gotomicro/redis-lock"
 	"go.uber.org/zap"
 	"sync"

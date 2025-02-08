@@ -1,10 +1,10 @@
 package web
 
 import (
-	"basic-project/webook/internal/service"
-	svcmocks "basic-project/webook/internal/service/mocks"
 	"bytes"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	svcmocks "github.com/basic-go-project-webook/webook/internal/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"

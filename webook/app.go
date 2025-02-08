@@ -1,7 +1,7 @@
 package main
 
 import (
-	"basic-project/webook/internal/events"
+	"github.com/basic-go-project-webook/webook/internal/events"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 )

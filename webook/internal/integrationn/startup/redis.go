@@ -1,7 +1,7 @@
 package startup
 
 import (
-	"basic-project/webook/config"
+	"github.com/basic-go-project-webook/webook/config"
 	"github.com/redis/go-redis/v9"
 )
 

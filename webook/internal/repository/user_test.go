@@ -1,14 +1,14 @@
 package repository
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository/cache"
-	cachemocks "basic-project/webook/internal/repository/cache/mocks"
-	"basic-project/webook/internal/repository/dao"
-	daomocks "basic-project/webook/internal/repository/dao/mocks"
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache"
+	cachemocks "github.com/basic-go-project-webook/webook/internal/repository/cache/mocks"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao"
+	daomocks "github.com/basic-go-project-webook/webook/internal/repository/dao/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"

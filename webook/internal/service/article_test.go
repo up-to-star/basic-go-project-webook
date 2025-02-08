@@ -1,10 +1,10 @@
 package service
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository/article"
-	repomocks "basic-project/webook/internal/repository/mocks"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository/article"
+	repomocks "github.com/basic-go-project-webook/webook/internal/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"

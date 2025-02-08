@@ -1,10 +1,10 @@
 package service
 
 import (
-	"basic-project/webook/internal/repository"
-	"basic-project/webook/internal/service/sms"
 	"context"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/repository"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 	"math/rand"
 )
 

@@ -1,8 +1,8 @@
 package metrics
 
 import (
-	"basic-project/webook/internal/service/sms"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 	"github.com/prometheus/client_golang/prometheus"
 	"time"
 )

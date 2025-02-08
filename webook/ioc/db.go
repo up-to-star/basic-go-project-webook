@@ -1,8 +1,8 @@
 package ioc
 
 import (
-	dao2 "basic-project/webook/interactive/repository/dao"
-	"basic-project/webook/internal/repository/dao"
+	dao2 "github.com/basic-go-project-webook/webook/interactive/repository/dao"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao"
 	prometheus2 "github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"

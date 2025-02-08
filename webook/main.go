@@ -1,9 +1,9 @@
 package main
 
 import (
-	"basic-project/webook/ioc"
 	"context"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/ioc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"

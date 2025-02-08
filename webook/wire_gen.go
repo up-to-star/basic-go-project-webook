@@ -7,19 +7,19 @@
 package main
 
 import (
-	repository2 "basic-project/webook/interactive/repository"
-	cache2 "basic-project/webook/interactive/repository/cache"
-	dao2 "basic-project/webook/interactive/repository/dao"
-	service2 "basic-project/webook/interactive/service"
-	"basic-project/webook/internal/repository"
-	article2 "basic-project/webook/internal/repository/article"
-	"basic-project/webook/internal/repository/cache"
-	"basic-project/webook/internal/repository/dao"
-	"basic-project/webook/internal/repository/dao/article"
-	"basic-project/webook/internal/service"
-	"basic-project/webook/internal/web"
-	"basic-project/webook/internal/web/jwt"
-	"basic-project/webook/ioc"
+	repository2 "github.com/basic-go-project-webook/webook/interactive/repository"
+	cache2 "github.com/basic-go-project-webook/webook/interactive/repository/cache"
+	dao2 "github.com/basic-go-project-webook/webook/interactive/repository/dao"
+	service2 "github.com/basic-go-project-webook/webook/interactive/service"
+	"github.com/basic-go-project-webook/webook/internal/repository"
+	article2 "github.com/basic-go-project-webook/webook/internal/repository/article"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao"
+	"github.com/basic-go-project-webook/webook/internal/repository/dao/article"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	"github.com/basic-go-project-webook/webook/internal/web"
+	"github.com/basic-go-project-webook/webook/internal/web/jwt"
+	"github.com/basic-go-project-webook/webook/ioc"
 	"github.com/google/wire"
 )
 

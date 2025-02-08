@@ -1,13 +1,13 @@
 package integrationn
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/integrationn/startup"
-	gorm2 "basic-project/webook/internal/repository/dao/article"
-	ijwt "basic-project/webook/internal/web/jwt"
-	"basic-project/webook/ioc"
 	"bytes"
 	"encoding/json"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/integrationn/startup"
+	gorm2 "github.com/basic-go-project-webook/webook/internal/repository/dao/article"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
+	"github.com/basic-go-project-webook/webook/ioc"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"

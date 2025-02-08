@@ -1,7 +1,7 @@
 package ioc
 
 import (
-	"basic-project/webook/internal/pkg/ratelimit"
+	"github.com/basic-go-project-webook/webook/internal/pkg/ratelimit"
 	"github.com/redis/go-redis/v9"
 	"time"
 )

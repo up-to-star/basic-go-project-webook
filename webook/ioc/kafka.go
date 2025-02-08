@@ -1,10 +1,10 @@
 package ioc
 
 import (
-	events2 "basic-project/webook/interactive/events"
-	"basic-project/webook/interactive/repository"
-	"basic-project/webook/internal/events"
-	"basic-project/webook/internal/events/article"
+	events2 "github.com/basic-go-project-webook/webook/interactive/events"
+	"github.com/basic-go-project-webook/webook/interactive/repository"
+	"github.com/basic-go-project-webook/webook/internal/events"
+	"github.com/basic-go-project-webook/webook/internal/events/article"
 	"github.com/spf13/viper"
 )
 

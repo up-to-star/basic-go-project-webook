@@ -1,9 +1,9 @@
 package service
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/repository"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/repository"
 	"go.uber.org/zap"
 	"time"
 )

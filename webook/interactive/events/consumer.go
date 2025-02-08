@@ -1,9 +1,9 @@
 package events
 
 import (
-	"basic-project/webook/interactive/repository"
 	"context"
 	"encoding/json"
+	"github.com/basic-go-project-webook/webook/interactive/repository"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )

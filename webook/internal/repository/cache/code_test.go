@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"basic-project/webook/internal/repository/cache/redismocks"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/repository/cache/redismocks"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"

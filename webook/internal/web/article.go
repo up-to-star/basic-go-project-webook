@@ -1,12 +1,12 @@
 package web
 
 import (
-	domain2 "basic-project/webook/interactive/domain"
-	service2 "basic-project/webook/interactive/service"
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/service"
-	ijwt "basic-project/webook/internal/web/jwt"
 	"context"
+	domain2 "github.com/basic-go-project-webook/webook/interactive/domain"
+	service2 "github.com/basic-go-project-webook/webook/interactive/service"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"

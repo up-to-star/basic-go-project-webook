@@ -1,11 +1,11 @@
 package cache
 
 import (
-	"basic-project/webook/internal/domain"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/domain"
 	"github.com/redis/go-redis/v9"
 	"time"
 )

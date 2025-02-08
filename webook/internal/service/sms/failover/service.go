@@ -1,9 +1,9 @@
 package failover
 
 import (
-	"basic-project/webook/internal/service/sms"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 	"log"
 	"sync/atomic"
 )

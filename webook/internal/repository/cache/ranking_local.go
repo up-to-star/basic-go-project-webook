@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"basic-project/webook/internal/domain"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/domain"
 	"github.com/ecodeclub/ekit/syncx/atomicx"
 	"time"
 )

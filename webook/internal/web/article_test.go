@@ -1,13 +1,13 @@
 package web
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/service"
-	svcmocks "basic-project/webook/internal/service/mocks"
-	ijwt "basic-project/webook/internal/web/jwt"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	svcmocks "github.com/basic-go-project-webook/webook/internal/service/mocks"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"

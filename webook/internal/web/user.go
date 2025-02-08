@@ -1,11 +1,11 @@
 package web
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/service"
-	ijwt "basic-project/webook/internal/web/jwt"
 	"errors"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/service"
+	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

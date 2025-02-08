@@ -1,8 +1,8 @@
 package opentelemetry
 
 import (
-	"basic-project/webook/internal/service/sms"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )

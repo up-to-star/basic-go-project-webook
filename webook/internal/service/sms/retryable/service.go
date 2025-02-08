@@ -1,8 +1,8 @@
 package retryable
 
 import (
-	"basic-project/webook/internal/service/sms"
 	"context"
+	"github.com/basic-go-project-webook/webook/internal/service/sms"
 )
 
 type Service struct {

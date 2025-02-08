@@ -1,9 +1,9 @@
 package ratelimit
 
 import (
-	"basic-project/webook/internal/pkg/ratelimit"
 	_ "embed"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/pkg/ratelimit"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"

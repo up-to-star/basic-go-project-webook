@@ -10,8 +10,8 @@
 package daomocks
 
 import (
-	dao "basic-project/webook/internal/repository/dao"
 	context "context"
+	dao "github.com/basic-go-project-webook/webook/internal/repository/dao"
 	reflect "reflect"
 
 	gin "github.com/gin-gonic/gin"

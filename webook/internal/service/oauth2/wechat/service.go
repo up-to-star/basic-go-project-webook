@@ -1,10 +1,10 @@
 package wechat
 
 import (
-	"basic-project/webook/internal/domain"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/basic-go-project-webook/webook/internal/domain"
 	"net/http"
 	"net/url"
 )

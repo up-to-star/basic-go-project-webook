@@ -1,8 +1,8 @@
 package ioc
 
 import (
-	"basic-project/webook/internal/job"
-	"basic-project/webook/internal/service"
+	"github.com/basic-go-project-webook/webook/internal/job"
+	"github.com/basic-go-project-webook/webook/internal/service"
 	rlock "github.com/gotomicro/redis-lock"
 	"github.com/robfig/cron/v3"
 	"time"

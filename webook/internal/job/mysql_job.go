@@ -1,10 +1,10 @@
 package job
 
 import (
-	"basic-project/webook/internal/domain"
-	"basic-project/webook/internal/service"
 	"context"
 	"errors"
+	"github.com/basic-go-project-webook/webook/internal/domain"
+	"github.com/basic-go-project-webook/webook/internal/service"
 	"go.uber.org/zap"
 	"golang.org/x/sync/semaphore"
 	"time"
