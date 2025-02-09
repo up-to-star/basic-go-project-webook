@@ -3,8 +3,8 @@ package ratelimit
 import (
 	"context"
 	"fmt"
-	"github.com/basic-go-project-webook/webook/internal/pkg/ratelimit"
 	"github.com/basic-go-project-webook/webook/internal/service/sms"
+	"github.com/basic-go-project-webook/webook/pkg/ratelimit"
 )
 
 var (

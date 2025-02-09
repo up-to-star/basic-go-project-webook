@@ -5,6 +5,7 @@ import (
 	"github.com/basic-go-project-webook/webook/api/proto/gen/intr/v1"
 	"github.com/basic-go-project-webook/webook/interactive/domain"
 	"github.com/basic-go-project-webook/webook/interactive/service"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -12,6 +13,14 @@ import (
 type InteractiveServiceServer struct {
 	intrv1.UnimplementedInteractiveServiceServer
 	svc service.InteractiveService
+}
+
+func NewInteractiveServiceServer(svc service.InteractiveService) *InteractiveServiceServer {
+	return &InteractiveServiceServer{svc: svc}
+}
+
+func (i *InteractiveServiceServer) Register(server *grpc.Server) {
+	intrv1.RegisterInteractiveServiceServer(server, i)
 }
 
 func (i *InteractiveServiceServer) Like(ctx context.Context, request *intrv1.LikeRequest) (*intrv1.LikeResponse, error) {

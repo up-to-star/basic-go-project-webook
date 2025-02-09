@@ -2,12 +2,12 @@ package ioc
 
 import (
 	"context"
-	"github.com/basic-go-project-webook/webook/internal/pkg/ginx/middlewares/logger"
-	"github.com/basic-go-project-webook/webook/internal/pkg/ginx/middlewares/ratelimit"
-	ratelimit2 "github.com/basic-go-project-webook/webook/internal/pkg/ratelimit"
 	"github.com/basic-go-project-webook/webook/internal/web"
 	ijwt "github.com/basic-go-project-webook/webook/internal/web/jwt"
 	"github.com/basic-go-project-webook/webook/internal/web/middleware"
+	"github.com/basic-go-project-webook/webook/pkg/ginx/middlewares/logger"
+	"github.com/basic-go-project-webook/webook/pkg/ginx/middlewares/ratelimit"
+	ratelimit2 "github.com/basic-go-project-webook/webook/pkg/ratelimit"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
