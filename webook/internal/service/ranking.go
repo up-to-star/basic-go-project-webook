@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/basic-go-project-webook/webook/interactive/service"
+	intrv1 "github.com/basic-go-project-webook/webook/api/proto/gen/intr/v1"
 	"github.com/basic-go-project-webook/webook/internal/domain"
 	"github.com/basic-go-project-webook/webook/internal/repository"
 	"github.com/ecodeclub/ekit/queue"
@@ -17,14 +17,14 @@ type RankingService interface {
 
 type BatchRankingService struct {
 	artSvc    ArticleService
-	intrSvc   service.InteractiveService
+	intrSvc   intrv1.InteractiveServiceClient
 	repo      repository.RankingRepository
 	batchSize int
 	n         int
 	scoreFunc func(t time.Time, likeCnt int64) float64
 }
 
-func NewBatchRankingService(artSvc ArticleService, intrSvc service.InteractiveService, repo repository.RankingRepository) RankingService {
+func NewBatchRankingService(artSvc ArticleService, intrSvc intrv1.InteractiveServiceClient, repo repository.RankingRepository) RankingService {
 	return &BatchRankingService{
 		artSvc:    artSvc,
 		intrSvc:   intrSvc,
@@ -76,13 +76,16 @@ func (svc *BatchRankingService) topN(ctx context.Context) ([]domain.Article, err
 			ids[i] = art.Id
 		}
 
-		intrMap, err := svc.intrSvc.GetByIds(ctx, "article", ids)
+		intrs, err := svc.intrSvc.GetByIds(ctx, &intrv1.GetByIdsRequest{
+			Biz: "article",
+			Ids: ids,
+		})
 		if err != nil {
 			return nil, err
 		}
 
 		for _, art := range arts {
-			intr, ok := intrMap[art.Id]
+			intr, ok := intrs.Intrs[art.Id]
 			if !ok {
 				continue
 			}
