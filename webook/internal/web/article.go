@@ -291,7 +291,7 @@ func (h *ArticleHandle) PubDetail(ctx *gin.Context) {
 
 	eg.Go(func() error {
 		var er error
-		art, er = h.svc.GetPubById(ctx, claims.Uid, id)
+		art, er = h.svc.GetPubById(ctx, id, claims.Uid)
 		return er
 	})
 

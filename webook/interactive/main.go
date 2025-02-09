@@ -10,7 +10,6 @@ import (
 
 func main() {
 	initViper()
-	initPrometheus()
 	initZap()
 
 	app := InitAPP()
@@ -39,7 +38,7 @@ func initViper() {
 func initPrometheus() {
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		err := http.ListenAndServe(":8081", nil)
+		err := http.ListenAndServe(":8082", nil)
 		if err != nil {
 			panic(err)
 		}

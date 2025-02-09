@@ -13,6 +13,10 @@ type InteractiveServiceAdapter struct {
 	svc service.InteractiveService
 }
 
+func NewInteractiveServiceAdapter(svc service.InteractiveService) *InteractiveServiceAdapter {
+	return &InteractiveServiceAdapter{svc: svc}
+}
+
 func (i *InteractiveServiceAdapter) Like(ctx context.Context, in *intrv1.LikeRequest, opts ...grpc.CallOption) (*intrv1.LikeResponse, error) {
 	err := i.svc.Like(ctx, in.GetBiz(), in.GetBizId(), in.GetUid())
 	return &intrv1.LikeResponse{}, err

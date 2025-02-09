@@ -52,6 +52,7 @@ func InitWebServer() *App {
 		cache.NewRedisArticleCache,
 
 		interactiveSvcSet,
+		ioc.InitIntrGRPCClient,
 		// ranking
 		rankingSvcSet,
 
