@@ -19,7 +19,10 @@ import (
 // Injectors from wire.go:
 
 func InitAPP() *App {
-	db := ioc.InitDB()
+	srcDB := ioc.InitSrcDB()
+	dstDB := ioc.InitDstDB()
+	doubleWritePool := ioc.InitDoubleWritePool(srcDB, dstDB)
+	db := ioc.InitBizDB(doubleWritePool)
 	interactiveDAO := dao.NewGORMInteractiveDAO(db)
 	cmdable := ioc.InitRedis()
 	interactiveCache := cache.NewInteractiveRedisCache(cmdable)
@@ -28,16 +31,20 @@ func InitAPP() *App {
 	interactiveServiceServer := grpc.NewInteractiveServiceServer(interactiveService)
 	server := ioc.InitGRPCXServer(interactiveServiceServer)
 	interactiveReadEventConsumer := ioc.InitInteractiveReadEventConsumer(interactiveRepository)
-	v := ioc.InitConsumers(interactiveReadEventConsumer)
+	consumer := ioc.InitFixerConsumer(srcDB, dstDB)
+	v := ioc.InitConsumers(interactiveReadEventConsumer, consumer)
+	producer := ioc.InitInconsistentProducer()
+	ginxServer := ioc.InitGinxServer(srcDB, dstDB, doubleWritePool, producer)
 	app := &App{
-		server:    server,
-		consumers: v,
+		server:      server,
+		consumers:   v,
+		adminServer: ginxServer,
 	}
 	return app
 }
 
 // wire.go:
 
-var thirdPartySet = wire.NewSet(ioc.InitDB, ioc.InitRedis)
+var thirdPartySet = wire.NewSet(ioc.InitSrcDB, ioc.InitDstDB, ioc.InitDoubleWritePool, ioc.InitBizDB, ioc.InitRedis)
 
 var interactiveSvcSet = wire.NewSet(dao.NewGORMInteractiveDAO, cache.NewInteractiveRedisCache, repository.NewCachedInteractiveRepository, service.NewInteractiveService)

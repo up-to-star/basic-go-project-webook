@@ -13,7 +13,10 @@ import (
 )
 
 var thirdPartySet = wire.NewSet(
-	ioc.InitDB,
+	ioc.InitSrcDB,
+	ioc.InitDstDB,
+	ioc.InitDoubleWritePool,
+	ioc.InitBizDB,
 	ioc.InitRedis,
 )
 
@@ -29,9 +32,12 @@ func InitAPP() *App {
 		interactiveSvcSet,
 		thirdPartySet,
 		grpc.NewInteractiveServiceServer,
+		ioc.InitInconsistentProducer,
 		ioc.InitInteractiveReadEventConsumer,
+		ioc.InitFixerConsumer,
 		ioc.InitConsumers,
 		ioc.InitGRPCXServer,
+		ioc.InitGinxServer,
 		wire.Struct(new(App), "*"),
 	)
 	return new(App)

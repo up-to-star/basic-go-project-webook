@@ -10,3 +10,7 @@ kafka:
 grpc:
   server:
     addr: "localhost:8090"
+
+migrator:
+  http:
+    addr: "localhost:8083"

@@ -130,10 +130,10 @@ func (d *DoubleWritePool) QueryRowContext(ctx context.Context, query string, arg
 	}
 }
 
-func NewDoubleWritePool(src, dst gorm.ConnPool) *DoubleWritePool {
+func NewDoubleWritePool(src *gorm.DB, dst *gorm.DB) *DoubleWritePool {
 	return &DoubleWritePool{
-		src:     src,
-		dst:     dst,
+		src:     src.ConnPool,
+		dst:     dst.ConnPool,
 		pattern: atomic.NewString(PatternSrcOnly),
 	}
 }

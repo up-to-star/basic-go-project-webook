@@ -183,7 +183,7 @@ func (v *Validator[T]) fullFromBase(ctx context.Context, offset int) (T, error) 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	var src T
-	err := v.base.WithContext(ctx).Where("utime > ?", v.utime).Order("id").Offset(offset).First(&src).Error
+	err := v.base.WithContext(ctx).Order("id").Offset(offset).First(&src).Error
 	return src, err
 }
 

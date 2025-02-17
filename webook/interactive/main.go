@@ -11,11 +11,19 @@ import (
 func main() {
 	initViper()
 	initZap()
+	initPrometheus()
 
 	app := InitAPP()
 	for _, c := range app.consumers {
 		c.Start()
 	}
+
+	go func() {
+		err1 := app.adminServer.Start()
+		if err1 != nil {
+			panic(err1)
+		}
+	}()
 	server := app.server
 	err := server.Serve()
 	if err != nil {
