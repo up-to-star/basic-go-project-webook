@@ -2,8 +2,8 @@ package integration
 
 import (
 	_ "embed"
+	"github.com/basic-go-project-webook/webook/interactive/ioc"
 	"github.com/basic-go-project-webook/webook/interactive/repository/dao"
-	"github.com/basic-go-project-webook/webook/ioc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

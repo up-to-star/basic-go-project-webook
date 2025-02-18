@@ -9,6 +9,6 @@ type InconsistentEvent struct {
 
 const (
 	InconsistentEventTypeTargetMissing = "target_missing"
-	InconsistentEventTypeNEQ           = "new"
+	InconsistentEventTypeNEQ           = "neq"
 	InconsistentEventTypeBaseMissing   = "base_missing"
 )

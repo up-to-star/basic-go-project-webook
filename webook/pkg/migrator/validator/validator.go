@@ -157,8 +157,7 @@ func (v *Validator[T]) validateTargetToBase(ctx context.Context) error {
 }
 
 func (v *Validator[T]) notify(id int64, typ string) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	err := v.p.ProduceInconsistentEvent(ctx, events.InconsistentEvent{
 		ID:        id,
 		Direction: v.direction,
@@ -167,6 +166,7 @@ func (v *Validator[T]) notify(id int64, typ string) {
 	if err != nil {
 		log.Printf("通知消息不一致失败，id: %d, type: %s, err: %v\n", id, typ, err)
 	}
+	cancel()
 }
 
 func (v *Validator[T]) SleepInterval(sleetInterval time.Duration) *Validator[T] {

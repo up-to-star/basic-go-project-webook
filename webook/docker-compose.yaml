@@ -55,15 +55,15 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
-#  kafka-ui:
-#    container_name: kafka-ui
-#    image: provectuslabs/kafka-ui:latest
-#    ports:
-#      - "8088:8080"
-#    depends_on:
-#      - kafka
-#    environment:
-#      DYNAMIC_CONFIG_ENABLED: "TRUE"
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8088:8080"
+    depends_on:
+      - kafka
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "TRUE"
 
   prometheus:
     image: prom/prometheus:v2.47.2
