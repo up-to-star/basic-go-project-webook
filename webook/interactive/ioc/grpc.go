@@ -9,7 +9,9 @@ import (
 
 func InitGRPCXServer(intrSvc *grpc2.InteractiveServiceServer) *grpcx.Server {
 	type Config struct {
-		Addr string `yaml:"addr"`
+		EtcdAddr string `yaml:"etcdAddr"`
+		Port     int    `json:"port"`
+		Name     string `yaml:"name"`
 	}
 	var cfg Config
 	err := viper.UnmarshalKey("grpc.server", &cfg)
@@ -19,7 +21,9 @@ func InitGRPCXServer(intrSvc *grpc2.InteractiveServiceServer) *grpcx.Server {
 	server := grpc.NewServer()
 	intrSvc.Register(server)
 	return &grpcx.Server{
-		Server: server,
-		Addr:   cfg.Addr,
+		Server:   server,
+		Port:     cfg.Port,
+		Name:     cfg.Name,
+		EtcdAddr: cfg.EtcdAddr,
 	}
 }

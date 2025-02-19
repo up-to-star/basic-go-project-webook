@@ -14,3 +14,7 @@ grpc:
       addr: "localhost:8090"
       secure: false
       threshold: 55
+
+etcd:
+  addrs:
+    - "localhost:12379"
