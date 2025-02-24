@@ -20,6 +20,7 @@ type Server struct {
 	Name     string
 	client   *etcdv3.Client
 	kaCancel func()
+	weight   int
 }
 
 func (s *Server) Serve() error {
@@ -59,8 +60,10 @@ func (s *Server) register() error {
 		return err
 	}
 	err = em.AddEndpoint(ctx, key, endpoints.Endpoint{
-		Addr:     addr,
-		Metadata: leaseResp.ID,
+		Addr: addr,
+		Metadata: map[string]any{
+			"weight": s.weight,
+		},
 	}, etcdv3.WithLease(leaseResp.ID))
 	if err != nil {
 		return err

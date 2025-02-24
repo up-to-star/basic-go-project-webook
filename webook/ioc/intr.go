@@ -10,6 +10,7 @@ import (
 	"go.etcd.io/etcd/client/v3/naming/resolver"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	_ "google.golang.org/grpc/balancer/weightedroundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -66,6 +67,10 @@ func InitIntrGRPCClientEtcd(client *etcdv3.Client) intrv1.InteractiveServiceClie
 	if !cfg.Secure {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
+	// 接入负载均衡
+	opts = append(opts, grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`))
+	// 加权轮询算法
+	// opts = append(opts, grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"weighted_round_robin"}`))
 	cc, err := grpc.NewClient(cfg.Addr, opts...)
 	if err != nil {
 		panic(err)
