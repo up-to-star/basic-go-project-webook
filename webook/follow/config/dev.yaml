@@ -1,0 +1,10 @@
+redis:
+  addr: "localhost:6380"
+
+db:
+  dsn: "root:root@tcp(localhost:13316)/webook_follow?charset=utf8mb4&parseTime=True&loc=Local"
+
+grpc:
+  port: 8092
+  etcdAddr: "localhost:12379"
+  name: "follow"

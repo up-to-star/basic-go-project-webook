@@ -1,7 +1,7 @@
 package ioc
 
 import (
-	"github.com/basic-go-project-webook/webook/comment/repository/dao"
+	"github.com/basic-go-project-webook/webook/follow/repository/dao"
 	"github.com/basic-go-project-webook/webook/pkg/gormx"
 	prometheus2 "github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/viper"
@@ -32,7 +32,7 @@ func InitDB() *gorm.DB {
 	}
 
 	err = db.Use(prometheus.New(prometheus.Config{
-		DBName:          "webook_comment",
+		DBName:          "webook_follow",
 		RefreshInterval: 15,
 		StartServer:     false,
 		MetricsCollector: []prometheus.MetricsCollector{
@@ -44,7 +44,7 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
-	err = db.Use(tracing.NewPlugin(tracing.WithDBName("webook_comment")))
+	err = db.Use(tracing.NewPlugin(tracing.WithDBName("webook_follow")))
 	if err != nil {
 		panic(err)
 	}
@@ -52,11 +52,11 @@ func InitDB() *gorm.DB {
 	// 监控查询的执行时间
 	pcb := gormx.NewCallbacks(prometheus2.SummaryOpts{
 		Namespace: "study_webook",
-		Subsystem: "webook_comment",
+		Subsystem: "webook_follow",
 		Name:      "gorm_query_time",
 		Help:      "统计 GORM 执行时间",
 		ConstLabels: map[string]string{
-			"db": "webook_comment",
+			"db": "webook_follow",
 		},
 		Objectives: map[float64]float64{
 			0.5:   0.01,
